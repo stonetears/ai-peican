@@ -15,18 +15,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 
 .ctn{max-width:520px;margin:0 auto;padding:10px 14px 110px}
 
-.steps{display:flex;align-items:center;justify-content:center;gap:0;margin:8px 0 14px;padding:0 4px}
-.stp{display:flex;align-items:center;gap:0}
-.stp .num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;transition:all .3s}
-.stp .lbl{font-size:11px;margin-left:5px;white-space:nowrap;transition:all .3s}
-.stp.done .num{background:var(--ok);color:#fff}
-.stp.done .lbl{color:var(--ok)}
-.stp.active .num{background:var(--p);color:#fff;box-shadow:0 0 0 4px rgba(11,93,170,.15)}
-.stp.active .lbl{color:var(--p);font-weight:600}
-.stp.pending .num{background:#E0E4EB;color:var(--t3)}
-.stp.pending .lbl{color:var(--t3)}
-.stp-arrow{color:#D0D4DB;font-size:14px;margin:0 6px;flex-shrink:0}
-
 .card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
 .ct{font-size:13px;font-weight:600;color:var(--p);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .ct .ico{font-size:16px}
@@ -36,7 +24,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 .fr{display:flex;gap:8px}
 .fr .fg{flex:1}
 label{display:block;font-size:11px;color:var(--t2);margin-bottom:3px;font-weight:500}
-label .rq{color:var(--err);margin-left:1px}
 input,select,textarea{width:100%;padding:9px 11px;border:1.5px solid var(--bd);border-radius:10px;font-size:14px;color:var(--t1);background:#FAFBFC;transition:all .2s;font-family:inherit;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p);background:#fff;box-shadow:0 0 0 3px rgba(11,93,170,.06)}
 textarea{resize:vertical;min-height:52px;line-height:1.5}
@@ -47,7 +34,6 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .uz .big{font-size:48px;line-height:1;margin-bottom:6px;filter:grayscale(.1)}
 .uz .ht{font-size:15px;color:var(--t1);font-weight:600}
 .uz .sh{font-size:12px;color:var(--t3);margin-top:4px;line-height:1.4}
-.uz input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer}
 
 .pv{display:none;margin-top:10px}
 .pv.sh{display:block}
@@ -71,6 +57,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .bb{position:fixed;bottom:0;left:0;right:0;padding:10px 14px;padding-bottom:calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid var(--bd);z-index:100}
 .btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;font-family:inherit;letter-spacing:.5px}
 .btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn1{background:linear-gradient(135deg,#0B5DAA,#074075);color:#fff;box-shadow:0 3px 10px rgba(7,64,117,.2)}
 .btn2{background:#fff;color:var(--p);border:1.5px solid var(--p);font-size:14px;padding:10px}
 
@@ -78,12 +65,18 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .res.sh{display:block}
 .res-box{background:var(--pl);border:1.5px solid #B8D4F0;border-radius:12px;padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;word-break:break-all;max-height:55vh;overflow-y:auto;color:var(--t1);margin-bottom:8px}
 
+.loading{text-align:center;padding:20px}
+.loading .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--p);margin:0 3px;animation:bounce 1.2s infinite}
+.loading .dot:nth-child(2){animation-delay:.2s}
+.loading .dot:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-12px)}}
+
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);padding:10px 22px;background:rgba(28,35,51,.82);color:#fff;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:88vw;text-align:center;font-weight:500}
 .toast.sh{opacity:1}
 
-.qr-hint{text-align:center;font-size:11px;color:var(--t3);margin-top:6px}
+.copy-hint{text-align:center;font-size:11px;color:var(--t3);margin-top:6px}
 
-@media(max-width:370px){.fr{flex-direction:column;gap:0}.fr .fg{margin-bottom:10px}.steps{flex-wrap:wrap}}
+@media(max-width:370px){.fr{flex-direction:column;gap:0}.fr .fg{margin-bottom:10px}}
 </style>
 </head>
 <body>
@@ -95,16 +88,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 <div class="ctn">
 
-<div class="steps" id="stepsBar">
-  <div class="stp active" data-s="1"><span class="num">1</span><span class="lbl">拍照</span></div>
-  <span class="stp-arrow">&#x276F;</span>
-  <div class="stp pending" data-s="2"><span class="num">2</span><span class="lbl">确认</span></div>
-  <span class="stp-arrow">&#x276F;</span>
-  <div class="stp pending" data-s="3"><span class="num">3</span><span class="lbl">复制</span></div>
-</div>
-
 <div class="tip-box">
-  <strong>&#x1F4A1; 使用方法：</strong>拍照/截图上传客户画像 → 对照图片填写关键信息 → 点「复制配餐请求」→ 粘贴发到工作群，AI助手自动生成配餐方案！
+  <strong>&#x1F4A1; 使用方法：</strong>上传客户画像截图 → AI自动识别信息并生成配餐 → 复制发群即可！
 </div>
 
 <div class="card" id="uploadCard">
@@ -124,7 +109,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 </div>
 
 <div class="card" id="infoCard">
-  <div class="ct"><span class="ico">&#x270D;&#xFE0F;</span> 补充信息（选填）</div>
+  <div class="ct"><span class="ico">&#x270D;&#xFE0F;</span> 补充信息（选填，不填AI也会从图片识别）</div>
   <div class="fr">
     <div class="fg">
       <label>工单号</label>
@@ -166,12 +151,12 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 <div class="res" id="resultBox">
   <div class="card">
-    <div class="ct"><span class="ico">&#x2705;</span> 请求已生成</div>
+    <div class="ct"><span class="ico">&#x2705;</span> 配餐方案已生成</div>
     <div class="res-box" id="resultContent"></div>
     <div style="display:flex;gap:8px">
-      <button class="btn btn1" style="font-size:14px;padding:11px" onclick="copyAndShare()">&#x1F4CB; 复制并发到群里</button>
+      <button class="btn btn1" style="font-size:14px;padding:11px" onclick="copyResult()">&#x1F4CB; 复制配餐方案</button>
     </div>
-    <p class="qr-hint">复制后粘贴到微信工作群，AI助手会自动生成配餐方案</p>
+    <p class="copy-hint">复制后粘贴到微信工作群即可</p>
   </div>
 </div>
 
@@ -181,23 +166,27 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <tr><th>产品</th><th>条件</th><th>构成</th></tr>
     <tr><td><span class="tag tag-b">169美好家</span></td><td>实收[99,159)</td><td>169+80G+1000M+FTTR 1拖1</td></tr>
     <tr><td><span class="tag tag-b">199 5G-A</span></td><td>实收[139,399)</td><td>199+100G+2000M+FTTR 1拖2</td></tr>
+    <tr><td><span class="tag tag-b">239 5G-A</span></td><td>实收[199,399)</td><td>239+120G+2000M+FTTR 1拖2</td></tr>
     <tr><td><span class="tag tag-g">20元FTTR</span></td><td>实收≥129</td><td>主网关20+边缘10+组网10</td></tr>
     <tr><td><span class="tag tag-g">20元智屏</span></td><td>实收≥129</td><td>智屏30+信息优惠10</td></tr>
     <tr><td><span class="tag tag-g">10元视联</span></td><td>含宽</td><td>视联3天AI监控10元</td></tr>
     <tr><td><span class="tag tag-o">满卡流量</span></td><td>≥199融合</td><td>每副卡+20G</td></tr>
+    <tr><td><span class="tag tag-o">预存360</span></td><td>不限</td><td>360元分12月返(月30元)+120G流量(月10G)</td></tr>
   </table>
 </div>
 
 </div>
 
 <div class="bb">
-  <button class="btn btn1" id="mainBtn" onclick="generate()">&#x1F4CB; 生成配餐请求</button>
+  <button class="btn btn1" id="mainBtn" onclick="generate()">&#x1F916; 生成配餐</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-var hasImage = false;
+var API_KEY = 'sk-57d7610be4a0487c8502338edd05b9da';
+var API_URL = 'https://api.deepseek.com/chat/completions';
+var imageBase64 = null;
 
 var uz = document.getElementById('uploadZone');
 uz.addEventListener('dragover', function(e){e.preventDefault();uz.classList.add('dg')});
@@ -214,116 +203,166 @@ function handleFile(files){
   if(!f.type.startsWith('image/')){toast('请选择图片');return;}
   var r=new FileReader();
   r.onload=function(e){
-    document.getElementById('previewImg').src=e.target.result;
+    imageBase64=e.target.result;
+    document.getElementById('previewImg').src=imageBase64;
     document.getElementById('previewArea').classList.add('sh');
     uz.style.display='none';
-    hasImage=true;
-    updateSteps(2);
-    toast('图片已上传，正在生成配餐请求…');
-    setTimeout(function(){generate()},600);
+    toast('图片已上传，点击底部「生成配餐」');
   };
   r.readAsDataURL(f);
 }
 
 function clearImage(){
-  hasImage=false;
+  imageBase64=null;
   document.getElementById('previewImg').src='';
   document.getElementById('previewArea').classList.remove('sh');
   uz.style.display='';
   document.getElementById('fileInput').value='';
-  updateSteps(1);
 }
 
-function updateSteps(cur){
-  document.querySelectorAll('.stp').forEach(function(el){
-    var s=parseInt(el.dataset.s);
-    el.className='stp '+(s<cur?'done':s===cur?'active':'pending');
-  });
-}
-
-function generate(){
+function buildPrompt(){
   var plan=document.getElementById('plan').value.trim();
   var avg=document.getElementById('avgSpend').value.trim();
-
   var oid=document.getElementById('orderId').value.trim();
   var cp=document.getElementById('cpName').value.trim();
   var data=document.getElementById('dataUsage').value.trim();
   var broad=document.getElementById('broadSpeed').value;
   var extra=document.getElementById('extra').value.trim();
 
-  var lines=[];
-  lines.push('【AI配餐请求】');
-  lines.push('');
-  lines.push('请根据以下客户信息进行AI配餐。');
-  lines.push('');
-  lines.push('━━ 客户信息 ━━');
-  if(hasImage)lines.push('（已上传客户画像截图，请先识别图片中的全部客户信息）');
-  if(oid)lines.push('工单号：'+oid);
-  if(cp)lines.push('结对CP：'+cp);
-  if(plan)lines.push('当前套餐：'+plan);
-  if(avg)lines.push('月均消费：'+avg+'元');
+  var userParts=[];
+  
+  if(imageBase64){
+    userParts.push({type:'text',text:'这是一张客户画像截图，请先仔细识别图片中的所有客户信息。'});
+    userParts.push({type:'image_url',image_url:{url:imageBase64}});
+  }
+
+  var infoLines=[];
+  infoLines.push('\n请根据以上信息进行配餐。');
+  if(oid)infoLines.push('工单号：'+oid);
+  if(cp)infoLines.push('结对CP：'+cp);
+  if(plan)infoLines.push('当前套餐：'+plan);
+  if(avg)infoLines.push('月均消费：'+avg+'元');
   if(data){
     var dp=data.split('/');
-    lines.push('流量：套内'+dp[0].trim()+(dp[1]?'，月均用'+dp[1].trim():''));
+    infoLines.push('流量：套内'+dp[0].trim()+(dp[1]?'，月均用'+dp[1].trim():''));
   }
-  if(broad)lines.push('宽带速率：'+broad);
-  if(extra){lines.push('补充：'+extra);}
-  lines.push('');
-  lines.push('━━ 输出要求 ━━');
-  lines.push('');
-  lines.push('请严格按以下三段式输出配餐方案：');
-  lines.push('');
-  lines.push('【关键信息】');
-  lines.push('从画像中提炼关键信息（年龄、套餐、消费、号卡、宽带、FTTR、流量使用等），用自己的话概括，不要照搬系统标签');
-  lines.push('');
-  lines.push('【背后商机】');
-  lines.push('从关键信息中挖掘客户痛点和需求，每个痛点说明推荐切入点，例如：');
-  lines.push('• 从流量溢出→对流量需求大，切入升套餐');
-  lines.push('• 从无FTTR→可能有WiFi覆盖死角，切入加装FTTR');
-  lines.push('• 从沉默号卡→可满卡流量扩容，激活全家一起用');
-  lines.push('• 从宽带速率低→网速体验差，切入升档提速');
-  lines.push('• 从有游戏/教育偏好→可能家有小孩，切入智屏/看家');
-  lines.push('');
-  lines.push('【推荐产品】');
-  lines.push('首推：（最匹配痛点的方案，含产品名称+价格+推荐理由+切入点）');
-  lines.push('次推：（备选方案，从另一个痛点切入）');
-  lines.push('兜底：（最基础的保底方案，如预存360、副卡加装、流量包等）');
-  lines.push('');
-  lines.push('━━ 注意事项 ━━');
-  lines.push('1. 关键信息不能照搬画像标签，必须有独立的分析和提炼');
-  lines.push('2. 背后商机必须有推导过程，不能只列推荐不说明原因');
-  lines.push('3. 首推/次推/兜底三层必须完整，每层只选一个方案');
-  lines.push('4. 推荐产品必须符合政策条件，注意实收金额范围：');
-  lines.push('   - 169美好家：实收[99,159)');
-  lines.push('   - 199 5G-A：实收[139,399)');
-  lines.push('   - 20元FTTR：实收≥129');
-  lines.push('   - 20元智屏：实收≥129');
-  lines.push('   - 存量用户不允许单独加装二宽');
-  lines.push('5. 首推和次推的切入点要不同，从不同痛点维度推荐');
+  if(broad)infoLines.push('宽带速率：'+broad);
+  if(extra)infoLines.push('补充信息：'+extra);
 
-  var text=lines.join('\n');
-  document.getElementById('resultContent').textContent=text;
-  document.getElementById('resultBox').classList.add('sh');
-  updateSteps(3);
-  document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'start'});
-  copyText(text);
-  toast('已复制到剪贴板！粘贴发群里即可');
+  userParts.push({type:'text',text:infoLines.join('\n')});
+
+  var systemPrompt=`你是中国电信黄山分公司客户经营中心的AI配餐助手。你的任务是根据客户画像信息，生成专业的配餐方案。
+
+你必须严格按以下三段式输出：
+
+【关键信息】
+从画像中提炼关键信息（年龄、套餐、消费、号卡数、宽带、FTTR、流量使用等），用自己的话概括，禁止照搬系统标签原文。
+
+【背后商机】
+从关键信息中挖掘客户痛点和需求，每个痛点必须说明推荐切入点。常见切入点：
+- 流量溢出/不够用 → 对流量需求大，切入升套餐
+- 无FTTR → 可能有WiFi覆盖死角，切入加装FTTR
+- 沉默号卡 → 可满卡流量扩容，激活全家一起用
+- 宽带速率低 → 网速体验差，切入升档提速
+- 有游戏/教育偏好 → 可能家有小孩，切入智屏/看家
+- 协议即将到期 → 流失风险，切入协议续约加固
+- 宽活移不活 → 宽带活跃但移动不活跃，切入融产品
+
+【推荐产品】
+首推：（最匹配痛点的方案，含产品名称+价格+推荐理由+切入点）
+次推：（备选方案，从另一个不同痛点切入）
+兜底：（最基础的保底方案，如预存360、副卡加装、流量包等）
+
+注意事项：
+1. 关键信息不能照搬画像标签，必须有独立的提炼
+2. 背后商机必须有推导过程，格式如"从XX→YY，切入ZZ"
+3. 首推/次推/兜底三层必须完整，每层只选一个方案
+4. 首推和次推的切入点必须不同
+5. 推荐产品必须符合政策条件：
+   - 169美好家：实收[99,159)才能推荐
+   - 199 5G-A：实收[139,399)才能推荐
+   - 239 5G-A：实收[199,399)才能推荐
+   - 20元FTTR：实收≥129才能推荐
+   - 20元智屏：实收≥129才能推荐
+   - 满卡流量：≥199融合套餐才能推荐
+   - 存量用户不允许单独加装二宽
+6. 推荐时必须说明月消费变化（如"每月多花XX元"）
+7. 兜底方案优先考虑：预存360元(分12月返30元+月10G流量)、副卡加装送流量、流量包`;
+
+  return {system:systemPrompt, user:userParts};
 }
 
-function copyAndShare(){
+function generate(){
+  if(!imageBase64){
+    var plan=document.getElementById('plan').value.trim();
+    var avg=document.getElementById('avgSpend').value.trim();
+    if(!plan&&!avg){toast('请上传客户画像或填写信息');return;}
+  }
+
+  var btn=document.getElementById('mainBtn');
+  btn.disabled=true;
+  btn.textContent='AI正在生成配餐…';
+
+  var resultBox=document.getElementById('resultBox');
+  var resultContent=document.getElementById('resultContent');
+  resultContent.innerHTML='<div class="loading"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><p style="text-align:center;color:var(--t3);font-size:12px;margin-top:8px">AI正在分析客户画像并生成配餐…</p>';
+  resultBox.classList.add('sh');
+  resultBox.scrollIntoView({behavior:'smooth',block:'start'});
+
+  var prompt=buildPrompt();
+
+  var body={
+    model:'deepseek-chat',
+    messages:[
+      {role:'system',content:prompt.system},
+      {role:'user',content:prompt.user}
+    ],
+    temperature:0.3,
+    max_tokens:2000
+  };
+
+  fetch(API_URL,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+API_KEY
+    },
+    body:JSON.stringify(body)
+  })
+  .then(function(resp){
+    if(!resp.ok)throw new Error('API返回错误：'+resp.status);
+    return resp.json();
+  })
+  .then(function(data){
+    var text=data.choices[0].message.content;
+    resultContent.textContent=text;
+    btn.disabled=false;
+    btn.textContent='重新生成配餐';
+    toast('配餐已生成！');
+  })
+  .catch(function(err){
+    console.error(err);
+    if(imageBase64 && String(err).indexOf('does not support')>-1 || String(err).indexOf('image')>-1){
+      resultContent.textContent='DeepSeek不支持图片识别，请先在下方填写客户关键信息，再点生成配餐。';
+    } else {
+      resultContent.textContent='生成失败：'+err.message+'\n\n请检查网络连接后重试。';
+    }
+    btn.disabled=false;
+    btn.textContent='重新生成配餐';
+  });
+}
+
+function copyResult(){
   var text=document.getElementById('resultContent').textContent;
-  copyText(text);
-  toast('已复制！粘贴到微信工作群');
-}
-
-function copyText(text){
+  if(!text||text.indexOf('正在')>-1){toast('配餐还未生成');return;}
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).catch(function(){fbCopy(text)});
+    navigator.clipboard.writeText(text).then(function(){toast('已复制！粘贴到微信工作群')}).catch(function(){fbCopy(text)});
   }else{fbCopy(text)}
 }
+
 function fbCopy(text){
   var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';
-  document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);
+  document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制！粘贴到微信工作群')}catch(e){toast('复制失败，请手动选择复制')}document.body.removeChild(ta);
 }
 
 function toast(m,d){var t=document.getElementById('toast');t.textContent=m;t.classList.add('sh');setTimeout(function(){t.classList.remove('sh')},d||2500)}
