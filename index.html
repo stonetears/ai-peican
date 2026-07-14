@@ -125,17 +125,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 var imageBase64=null;
 var _dk='sk-57d7610be4a0487c8502338edd05b9da';
 
-function checkLimit(){
-  var k='_pc_cnt',d=new Date().toISOString().slice(0,10);
-  var v=localStorage.getItem(k);
-  if(!v){localStorage.setItem(k,d+'_1');return true}
-  var p=v.split('_');
-  if(p[0]!==d){localStorage.setItem(k,d+'_1');return true}
-  var c=parseInt(p[1])||0;
-  if(c>=50){return false}
-  localStorage.setItem(k,d+'_'+(c+1));
-  return true;
-}
 
 var uz=document.getElementById('uploadZone');
 uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('dg')});
@@ -173,7 +162,6 @@ function clearImage(){
 
 async function generateFromImage(){
   if(!imageBase64){toast('请先上传客户画像截图');return;}
-  if(!checkLimit()){toast('今日使用次数已达上限(50次)');return;}
 
   var btn=document.getElementById('mainBtn');
   btn.disabled=true;
