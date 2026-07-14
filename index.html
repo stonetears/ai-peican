@@ -92,11 +92,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="ct"><span class="ico">&#x270D;&#xFE0F;</span> 客户信息</div>
   <div class="fr">
     <div class="fg">
-      <label>当前套餐<span class="rq">*</span></label>
+      <label>当前套餐</label>
       <input type="text" id="plan" placeholder="如 199元5G融合套餐">
     </div>
     <div class="fg">
-      <label>月均消费<span class="rq">*</span></label>
+      <label>月均消费</label>
       <input type="number" id="avgSpend" placeholder="如 159.8">
     </div>
   </div>
@@ -209,7 +209,7 @@ function generate(){
   var fttr=document.getElementById('fttrStatus').value;
   var extra=n(document.getElementById('extra').value);
 
-  if(!plan&&!avgStr){toast('请至少填写套餐和月均消费');return;}
+  if(!plan&&!avgStr&&!dataStr&&!card&&!broad&&!fttr&&!extra){toast('请填写至少一项客户信息');return;}
 
   var avg=parseFloat(avgStr)||0;
 
@@ -273,61 +273,101 @@ function generate(){
 
   // 流量溢出 → 升套餐
   if(flowOverflow){
-    opportunities.push('从流量溢出（月用'+dataOut+'G > 套内'+dataIn+'G）→ 对流量需求大，切入升套餐扩容');
+    var overflowDetail='从①上月流量溢出（月用'+dataOut+'G > 套内'+dataIn+'G），对流量需求大，套餐已不能满足日常使用，超出的流量按量计费不划算';
+    if(hasSilent)overflowDetail+='，②有'+silentCards+'张沉默号卡，可运用满卡流量扩容政策，以副卡流量激活沉默号卡，全家一起用';
+    overflowDetail+='切入首推；从用户对流量的刚性需求，升级套餐不仅解决超额扣费问题，流量更充足全家共享更划算切入';
+    opportunities.push(overflowDetail);
   }
 
   // 无FTTR → 加FTTR
   if(noFTTR){
-    var fttrReason=hasQiangCha?'且有网络质差':'可能存在WiFi覆盖死角';
-    opportunities.push('从无FTTR'+fttrReason+'→ 切入加装FTTR全屋覆盖');
+    var fttrDetail='从①无FTTR，复杂户型或房间多可能存在WiFi覆盖死角，上网体验差';
+    if(hasQiangCha)fttrDetail+='，②已有网络质差问题，说明WiFi信号确实存在薄弱区域';
+    if(broadVal>=1000)fttrDetail+='，③宽带速率已达'+broad+'但无FTTR，网速与设备不匹配，测速可能不达标';
+    fttrDetail+='。上门给用户检测设备，如果出现网速与套餐不匹配的情况，推荐焕新设备或排查线路切入';
+    opportunities.push(fttrDetail);
   }
 
   // 宽带速率低 → 升档提速
   if(broadLow){
-    opportunities.push('从宽带仅'+broad+'速率偏低→ 网速体验差，切入升档提速至千兆/2000M');
+    var broadDetail='从①宽带速率仅'+broad+'，高峰期可能出现卡顿，刷视频、上网课、办公容易抢网速';
+    if(noFTTR)broadDetail+='，②无FTTR，大户型或复杂户型可能存在WiFi覆盖死角';
+    broadDetail+='。升级千兆/2000M宽带+FTTR全屋组网，全屋网速更稳、互不干扰，看电视、上网、办公都流畅不耽误切入';
+    opportunities.push(broadDetail);
   }
 
   // 沉默号卡 → 满卡流量
   if(hasSilent){
-    opportunities.push('从'+silentCards+'张沉默号卡→ 可用满卡流量扩容政策，激活副卡全家一起用');
+    var silentDetail='从①'+silentCards+'张号卡沉睡（长期不用），用户有闲置号码，可进行全家笔算激活使用';
+    if(cardMulti)silentDetail+='，②多卡家庭，推荐副卡流量扩容，每张副卡可享受额外20G流量';
+    silentDetail+='。激活沉默号卡，全家一起用，既不浪费号码又能共享更多流量切入';
+    opportunities.push(silentDetail);
   }
 
   // 多号卡 → 全家一起用
   if(cardMulti&&!hasSilent){
-    opportunities.push('从多号卡（'+(activeCards+silentCards)+'张）→ 可推荐副卡流量扩容，全家共享');
+    var multiDetail='从多号卡（'+(activeCards+silentCards)+'张），多卡家庭套餐共享更划算。可推荐副卡流量扩容，每张副卡可享受额外20G流量，全家一起用，流量更多更灵活切入';
+    opportunities.push(multiDetail);
   }
 
   // 游戏/教育偏好 → 智屏/看家
   if(hasGame||hasEdu){
-    var reason=hasGame&&hasEdu?'游戏+教育偏好，家可能有小孩':hasGame?'游戏偏好，对网速要求高':'可能有小孩';
-    opportunities.push('从'+reason+'→ 切入天翼智屏/看家');
+    var prefDetail='';
+    if(hasGame&&hasEdu){
+      prefDetail='从①用户有游戏偏好对网速有需求，②有教育偏好可能家有小孩需要上网课，可挖掘天翼智屏/看家的使用需求';
+    }else if(hasGame){
+      prefDetail='从①用户有游戏偏好对网速有需求，对网络延迟和带宽要求高，②游戏用户通常对家庭网络品质关注，可挖掘FTTR升级需求';
+    }else{
+      prefDetail='从①可能有小孩需要上网课/老人看电视，②家庭场景对智屏和看家产品有需求，可挖掘天翼智屏/看家/视联的使用需求';
+    }
+    prefDetail+='切入';
+    opportunities.push(prefDetail);
   }
 
   // 协议到期 → 续约加固
   if(expiring){
-    opportunities.push('从协议即将到期→ 流失风险，切入续约加固/预存活动');
+    var expDetail='从①协议即将到期，存在流失风险，②老用户对电信有基础信任，入网时间长，③可参与网龄购机或预存活动，既加固关系又享受优惠切入兜底';
+    opportunities.push(expDetail);
   }
 
   // 网络质差 → 换设备
   if(hasQiangCha&&!noFTTR){
-    opportunities.push('从网络质差→ 切入换新设备/加装FTTR改善网络');
+    var qcDetail='从①已有网络质差问题，可能是老旧路由器或非WiFi6设备导致，②有FTTR但可能需要增加边缘网关扩展覆盖，③上门检测信号，若网速与套餐不匹配推荐焕新设备切入次推';
+    opportunities.push(qcDetail);
   }
 
   // 老用户 → 网龄购机
-  if(isOldUser){
-    opportunities.push('从老用户/网龄长→ 对电信有信任基础，切入网龄购机/预存活动');
+  if(isOldUser&&!expiring){
+    var oldDetail='从①电信老用户，网龄长，对电信有信任基础，流失风险较低，②机龄较长或可参与网龄购机，③可以从升级更好套餐+网龄购机组合切入';
+    opportunities.push(oldDetail);
   }
 
   // 宽活移不活
   if(extraL.indexOf('宽活移不活')>-1){
-    opportunities.push('从宽带活跃但移动不活跃→ 切入融产品提升移网使用');
+    opportunities.push('从①宽带活跃说明用户在家上网多，但移动不活跃说明手机卡没在用或话费不够，②推荐融产品套餐，固移融合提升移网使用，③从"家里上网多但手机套餐跟不上"切入推融合升级');
   }
 
-  // 无明显商机时给一个通用
+  // 商铺用户
+  if(isShop){
+    opportunities.push('从①可能是商铺用户，房间多、户型复杂，应该有信号死角，对网速要求较高，②商铺场景对网络稳定性要求更高，推荐FTTR全屋覆盖+高带宽套餐切入');
+  }
+
+  // 均消与套餐不匹配
+  if(avg>0&&plan){
+    var planMatch=plan.match(/(\d+)/);
+    var planPrice=planMatch?parseInt(planMatch[1]):0;
+    if(planPrice>0&&avg<planPrice*0.8){
+      opportunities.push('从月均消费'+avg+'元低于套餐价'+planPrice+'元，说明有话补类优惠，实际消费潜力被压制，推升套餐时需注意实收金额范围');
+    }else if(avg>planPrice*1.2){
+      opportunities.push('从月均消费'+avg+'元高于套餐价'+planPrice+'元，可能有额外消费项目，套餐不够用需要升档');
+    }
+  }
+
+  // 无明显商机时给通用
   if(opportunities.length===0){
-    if(noFTTR)opportunities.push('从无FTTR→ 可能有WiFi覆盖死角，切入加装FTTR');
-    else if(avg<100)opportunities.push('从消费偏低→ 套餐可能不匹配需求，切入升档');
-    else opportunities.push('从套餐使用情况→ 切入升级更高速率/更多流量套餐');
+    if(avg>=129)opportunities.push('从套餐使用情况分析，当前消费水平有升级更高速率/更多流量套餐的空间，切入推荐5G-A套餐或加装FTTR/智屏');
+    else if(avg>=99)opportunities.push('从消费水平看，可升级至169美好家套餐，享受千兆宽带+FTTR全屋覆盖，切入推荐');
+    else opportunities.push('从套餐消费偏低，可推荐融合套餐或单转融，切入升档提升价值');
   }
 
   // === 推荐产品 ===
