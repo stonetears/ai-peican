@@ -194,6 +194,8 @@ async function generateFromImage(){
 
     if(!resp.ok){
       var errText=await resp.text();
+      if(resp.status===402)throw new Error('API余额不足，请联系管理员充值');
+      if(resp.status===429)throw new Error('请求太频繁，请稍后再试');
       throw new Error('服务异常('+resp.status+')，请稍后重试');
     }
 
