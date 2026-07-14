@@ -18,23 +18,24 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 .ct .ico{font-size:16px}
 .fg{margin-bottom:10px}
 .fg:last-child{margin-bottom:0}
-.fr{display:flex;gap:8px}
-.fr .fg{flex:1}
 label{display:block;font-size:11px;color:var(--t2);margin-bottom:3px;font-weight:500}
 input,select,textarea{width:100%;padding:9px 11px;border:1.5px solid var(--bd);border-radius:10px;font-size:14px;color:var(--t1);background:#FAFBFC;transition:all .2s;font-family:inherit;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p);background:#fff;box-shadow:0 0 0 3px rgba(11,93,170,.06)}
-textarea{resize:vertical;min-height:52px;line-height:1.5}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 3.5L5 6.5L8 3.5' stroke='%23545C6C' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
-.uz{border:2.5px dashed #C8D0DC;border-radius:var(--r);padding:36px 16px;text-align:center;cursor:pointer;transition:all .25s;background:#FAFBFC;position:relative}
+.tab-bar{display:flex;gap:0;margin-bottom:10px;border-radius:10px;overflow:hidden;border:1.5px solid var(--bd)}
+.tab-btn{flex:1;padding:10px 8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:inherit;background:#FAFBFC;color:var(--t3)}
+.tab-btn.active{background:var(--p);color:#fff}
+.uz{border:2.5px dashed #C8D0DC;border-radius:var(--r);padding:30px 16px;text-align:center;cursor:pointer;transition:all .25s;background:#FAFBFC}
 .uz:active,.uz.dg{border-color:var(--p);background:var(--pl);transform:scale(.99)}
-.uz .big{font-size:48px;line-height:1;margin-bottom:6px;filter:grayscale(.1)}
-.uz .ht{font-size:15px;color:var(--t1);font-weight:600}
-.uz .sh{font-size:12px;color:var(--t3);margin-top:4px;line-height:1.4}
+.uz .big{font-size:40px;line-height:1;margin-bottom:6px}
+.uz .ht{font-size:14px;color:var(--t1);font-weight:600}
+.uz .sh{font-size:11px;color:var(--t3);margin-top:4px;line-height:1.4}
 .pv{display:none;margin-top:10px}
 .pv.sh{display:block}
-.pv-img{width:100%;max-height:200px;object-fit:contain;border-radius:10px;border:1px solid var(--bd)}
+.pv-img{width:100%;max-height:180px;object-fit:contain;border-radius:10px;border:1px solid var(--bd)}
 .pv-bar{display:flex;gap:8px;margin-top:8px}
-.pv-btn{flex:1;padding:8px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid var(--bd);background:#FAFBFC;color:var(--t2);font-family:inherit;transition:all .2s;font-weight:500}
+.pv-btn{flex:1;padding:8px;border-radius:8px;font-size:12px;cursor:pointer;border:1px solid var(--bd);background:#FAFBFC;color:var(--t2);font-family:inherit;font-weight:500}
 .pv-btn:active{transform:scale(.97)}
 .pv-btn.red{color:var(--err);border-color:#F5D5D3}
 .tip-box{background:linear-gradient(135deg,#FFF8ED,#FFF2DB);border-radius:10px;padding:12px 14px;margin-bottom:10px;border-left:4px solid var(--warn);font-size:12px;color:var(--t2);line-height:1.6}
@@ -61,7 +62,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .progress-text{font-size:12px;color:var(--t2)}
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);padding:10px 22px;background:rgba(28,35,51,.82);color:#fff;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:88vw;text-align:center;font-weight:500}
 .toast.sh{opacity:1}
-@media(max-width:370px){.fr{flex-direction:column;gap:0}.fr .fg{margin-bottom:10px}}
+.tab-content{display:none}
+.tab-content.active{display:block}
+@media(max-width:370px){.tab-btn{font-size:12px;padding:8px 4px}}
 </style>
 </head>
 <body>
@@ -74,21 +77,36 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <div class="ctn">
 
 <div class="tip-box">
-  <strong>&#x1F4A1; 使用方法：</strong>上传客户画像截图 → AI自动识别信息并生成配餐 → 复制发群！完全免费，所有信息从图片自动识别。
+  <strong>&#x1F4A1;</strong> 两种方式选一种：粘贴画像文字（最准确）或上传截图（OCR识别）。填完自动生成配餐，完全免费！
 </div>
 
-<div class="card" id="uploadCard">
-  <div class="ct"><span class="ico">&#x1F4F8;</span> 上传客户画像</div>
-  <div class="uz" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-    <div class="big">&#x1F4F7;</div>
-    <div class="ht">点击选择图片</div>
-    <div class="sh">支持拍照、选图、Ctrl+V粘贴</div>
-    <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this.files)" style="display:none">
+<div class="card">
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('paste')">&#x1F4CB; 粘贴文字</button>
+    <button class="tab-btn" onclick="switchTab('upload')">&#x1F4F7; 上传截图</button>
   </div>
-  <div class="pv" id="previewArea">
-    <img class="pv-img" id="previewImg" src="">
-    <div class="pv-bar">
-      <button class="pv-btn red" onclick="clearImage()">&#x1F5D1;&#xFE0F; 重选</button>
+
+  <div id="tabPaste" class="tab-content active">
+    <div class="ct"><span class="ico">&#x1F4CB;</span> 粘贴客户画像文字</div>
+    <div class="fg">
+      <textarea id="rawText" rows="6" placeholder="从工作台复制客户画像内容，直接粘贴到这里：&#10;&#10;例如：&#10;用户汪女士，5G-A融合套餐199元，套餐下有5张号卡+2部宽带+1部iTV+1个智能组网+1个天翼看家，近三月平均消费179.0元，最活跃宽带速率2000M，有FTTR，上月总使用流量0.0G（套内赠送0G），5张活跃、0张沉默"></textarea>
+    </div>
+    <button class="btn btn1" style="font-size:14px;padding:10px" onclick="parseAndGenerate()">&#x1F916; 识别并生成配餐</button>
+  </div>
+
+  <div id="tabUpload" class="tab-content">
+    <div class="ct"><span class="ico">&#x1F4F7;</span> 上传客户画像截图</div>
+    <div class="uz" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+      <div class="big">&#x1F4F7;</div>
+      <div class="ht">点击选择图片</div>
+      <div class="sh">OCR自动识别（准确度较低，建议用粘贴方式）</div>
+      <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this.files)" style="display:none">
+    </div>
+    <div class="pv" id="previewArea">
+      <img class="pv-img" id="previewImg" src="">
+      <div class="pv-bar">
+        <button class="pv-btn red" onclick="clearImage()">&#x1F5D1;&#xFE0F; 重选</button>
+      </div>
     </div>
   </div>
 </div>
@@ -106,7 +124,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="fr">
     <div class="fg">
       <label>当前套餐</label>
-      <input type="text" id="plan" placeholder="从图片自动识别">
+      <input type="text" id="plan" placeholder="自动识别">
     </div>
     <div class="fg">
       <label>月均消费</label>
@@ -142,8 +160,9 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
   <div class="fg">
     <label>补充信息</label>
-    <textarea id="extra" rows="2" placeholder="自动识别的补充信息"></textarea>
+    <textarea id="extra" rows="2" placeholder="自动识别的补充信息，可修改"></textarea>
   </div>
+  <button class="btn btn1" style="font-size:14px;padding:10px" onclick="generate()">&#x1F916; 重新生成配餐</button>
 </div>
 
 <div class="res" id="resultBox">
@@ -175,7 +194,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 </div>
 
 <div class="bb">
-  <button class="btn btn1" id="mainBtn" onclick="generate()">&#x1F916; 生成配餐（免费）</button>
+  <button class="btn btn1" id="mainBtn" onclick="parseAndGenerate()">&#x1F916; 生成配餐（免费）</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -184,11 +203,22 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 var imageBase64=null;
 var ocrText='';
 
+function switchTab(tab){
+  var btns=document.querySelectorAll('.tab-btn');
+  btns[0].className='tab-btn'+(tab==='paste'?' active':'');
+  btns[1].className='tab-btn'+(tab==='upload'?' active':'');
+  document.getElementById('tabPaste').className='tab-content'+(tab==='paste'?' active':'');
+  document.getElementById('tabUpload').className='tab-content'+(tab==='upload'?' active':'');
+}
+
 var uz=document.getElementById('uploadZone');
 uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('dg')});
 uz.addEventListener('dragleave',function(){uz.classList.remove('dg')});
 uz.addEventListener('drop',function(e){e.preventDefault();uz.classList.remove('dg');if(e.dataTransfer.files.length)handleFile(e.dataTransfer.files)});
-document.addEventListener('paste',function(e){var items=e.clipboardData.items;for(var i=0;i<items.length;i++){if(items[i].type.indexOf('image')!==-1){handleFile([items[i].getAsFile()]);break;}}});
+document.addEventListener('paste',function(e){
+  var items=e.clipboardData.items;
+  for(var i=0;i<items.length;i++){if(items[i].type.indexOf('image')!==-1){handleFile([items[i].getAsFile()]);break;}}
+});
 
 function handleFile(files){
   if(!files||!files.length)return;
@@ -212,128 +242,138 @@ function clearImage(){
   uz.style.display='';
   document.getElementById('fileInput').value='';
   document.getElementById('ocrCard').style.display='none';
-  document.getElementById('infoCard').style.display='none';
 }
 
 async function startOCR(){
   var ocrCard=document.getElementById('ocrCard');
-  var infoCard=document.getElementById('infoCard');
   var progBar=document.getElementById('ocrProgress');
   var progText=document.getElementById('ocrStatus');
   ocrCard.style.display='block';
-  infoCard.style.display='none';
   progBar.style.width='0%';
-  progText.textContent='正在加载识别引擎（首次较慢）…';
+  progText.textContent='正在加载识别引擎…';
 
   try{
     var worker=await Tesseract.createWorker('chi_sim',1,{
       logger:function(m){
         if(m.status==='recognizing text'){
-          var pct=Math.round(m.progress*100);
-          progBar.style.width=pct+'%';
-          progText.textContent='正在识别文字… '+pct+'%';
+          progBar.style.width=Math.round(m.progress*100)+'%';
+          progText.textContent='正在识别文字… '+Math.round(m.progress*100)+'%';
         }else if(m.status==='loading language traineddata'){
           progBar.style.width='20%';
-          progText.textContent='正在下载中文识别包（首次需约20MB）…';
-        }else if(m.status==='initializing api'){
-          progBar.style.width='30%';
-          progText.textContent='正在初始化…';
+          progText.textContent='正在下载中文识别包…';
         }
       }
     });
-
-    progBar.style.width='40%';
-    progText.textContent='正在识别文字…';
-
     var result=await worker.recognize(imageBase64);
     ocrText=result.data.text;
     await worker.terminate();
-
     progBar.style.width='100%';
     progText.textContent='识别完成！';
-
     setTimeout(function(){
       ocrCard.style.display='none';
-      parseOCR(ocrText);
-      infoCard.style.display='block';
-      generate();
+      document.getElementById('rawText').value=ocrText;
+      parseAndGenerate();
     },500);
-
   }catch(err){
-    console.error('OCR error:',err);
-    progText.textContent='识别失败，请手动填写信息';
-    setTimeout(function(){
-      ocrCard.style.display='none';
-      infoCard.style.display='block';
-    },2000);
+    progText.textContent='识别失败，请手动填写';
+    setTimeout(function(){ocrCard.style.display='none'},2000);
   }
 }
 
-function parseOCR(text){
-  var t=text.replace(/\s+/g,' ');
+function parseText(text){
+  var t=text.replace(/\$##/g,' ').replace(/\$@@/g,' ').replace(/\s+/g,' ');
 
-  // 套餐
-  var planMatch=t.match(/(\d{2,3})\s*元?\s*(?:5G[-_]?A|畅享|融合|美好家|天翼)?\s*(?:套餐|资餐)?/);
-  if(planMatch)document.getElementById('plan').value=planMatch[0].trim();
+  // 套餐 - 多种格式
+  var planVal='';
+  var pm1=t.match(/(\d{2,3})\s*元?\s*(5G[-_]?A|畅享|融合|美好家|天翼)[^，。]*?(套餐|资餐)?/);
+  var pm2=t.match(/(美好家|5G[-_]?A|畅享|融合|天翼)\s*(\d{2,3})\s*元?\s*(套餐|资餐)?/);
+  if(pm1)planVal=pm1[0].trim();
+  else if(pm2)planVal=pm2[0].trim();
 
   // 月均消费
-  var avgMatch=t.match(/(?:平均消费|均消|近三?月|平消)\s*[：:]?\s*[￥¥]?\s*(\d+\.?\d*)\s*元/);
-  if(avgMatch)document.getElementById('avgSpend').value=avgMatch[1];
+  var avgVal='';
+  var am=t.match(/(?:平均消费|均消|近三月|平消)\s*[：:]?\s*[￥¥]?\s*(\d+\.?\d*)\s*元/);
+  if(am)avgVal=am[1];
 
   // 号卡
-  var activeMatch=t.match(/(\d+)\s*张?\s*活跃/);
-  var silentMatch=t.match(/(\d+)\s*张?\s*沉默/);
-  if(activeMatch||silentMatch){
-    var ac=activeMatch?activeMatch[1]+'张活跃':'';
-    var sc=silentMatch?silentMatch[1]+'张沉默':'';
-    document.getElementById('cardInfo').value=(ac+(ac&&sc?'+':'')+sc).trim();
+  var cardVal='';
+  var acm=t.match(/(\d+)\s*张?\s*活跃/);
+  var scm=t.match(/(\d+)\s*张?\s*沉默/);
+  if(acm||scm){
+    cardVal=(acm?acm[1]+'张活跃':'')+(acm&&scm?'+':'')+(scm?scm[1]+'张沉默':'');
   }
 
   // 宽带速率
-  var broadMatch=t.match(/(?:速率|宽带)\s*[：:]?\s*(\d{3,4})\s*M/);
-  if(broadMatch){
-    var sel=document.getElementById('broadSpeed');
-    var val=broadMatch[1]+'M';
-    for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===val){sel.selectedIndex=i;break;}}
-  }
+  var broadVal='';
+  var bm=t.match(/(?:速率|宽带速率|最活跃宽带速率)\s*[：:]?\s*(\d{3,4})\s*M/);
+  if(bm)broadVal=bm[1]+'M';
 
   // 流量
-  var flowInMatch=t.match(/(?:套内|赠送)\s*(\d+)\s*G/);
-  var flowOutMatch=t.match(/(?:月均?用|使用流量|总使用流量)\s*[：:]?\s*(\d+\.?\d*)\s*G/);
-  if(flowInMatch||flowOutMatch){
-    var fi=flowInMatch?flowInMatch[1]+'G':'';
-    var fo=flowOutMatch?flowOutMatch[1]+'G':'';
-    document.getElementById('dataUsage').value=(fi+(fi&&fo?' / ':'')+fo).trim();
+  var dataVal='';
+  var fim=t.match(/(?:套内|赠送)\s*(\d+)\s*G/);
+  var fom=t.match(/(?:月均?用|使用流量|总使用流量)\s*[：:]?\s*(\d+\.?\d*)\s*G/);
+  if(fim||fom){
+    dataVal=(fim?fim[1]+'G':'')+(fim&&fom?' / ':'')+(fom?fom[1]+'G':'');
   }
 
   // FTTR
-  if(t.indexOf('无FTTR')>-1||t.indexOf('无 FTTR')>-1){
-    document.getElementById('fttrStatus').value='无FTTR';
-  }else if(t.indexOf('有FTTR')>-1||t.indexOf('有 FTTR')>-1){
-    document.getElementById('fttrStatus').value='有FTTR';
-  }
+  var fttrVal='';
+  if(t.indexOf('无FTTR')>-1||t.indexOf('无 FTTR')>-1)fttrVal='无FTTR';
+  else if(t.indexOf('有FTTR')>-1||t.indexOf('有 FTTR')>-1)fttrVal='有FTTR';
 
   // 补充信息
   var extras=[];
-  if(t.indexOf('iTV')>-1||t.indexOf('ITV')>-1)extras.push('有iTV');
+  if(/iTV|ITV/i.test(t))extras.push('有iTV');
   if(t.indexOf('质差')>-1)extras.push('有网络质差');
-  if(t.indexOf('WiFi5')>-1||t.indexOf('WiFi 5')>-1)extras.push('有WiFi5');
-  if(t.indexOf('WiFi6')>-1||t.indexOf('WiFi 6')>-1)extras.push('有WiFi6');
+  if(t.indexOf('WiFi5')>-1)extras.push('有WiFi5');
+  if(t.indexOf('WiFi6')>-1)extras.push('有WiFi6');
   if(t.indexOf('游戏')>-1)extras.push('有游戏偏好');
   if(t.indexOf('教育')>-1)extras.push('有教育偏好');
   if(t.indexOf('到期')>-1){
-    var expM=t.match(/(\d{4})\s*年\s*(\d+)\s*月/);
-    extras.push(expM?'协议'+expM[1]+'年'+expM[2]+'月到期':'协议即将到期');
+    var em=t.match(/(\d{4})\s*年\s*(\d+)\s*月.*?到期/);
+    extras.push(em?'协议'+em[1]+'年'+em[2]+'月到期':'协议即将到期');
   }
   if(t.indexOf('看家')>-1)extras.push('有看家');
   if(t.indexOf('监控')>-1)extras.push('有监控');
+  if(/智能组网|智能猫眼/.test(t))extras.push('有智能组网');
   if(t.indexOf('老用户')>-1||t.indexOf('网龄')>-1)extras.push('老用户');
   if(t.indexOf('宽活移不活')>-1)extras.push('宽活移不活');
-  if(t.indexOf('千兆网关')>-1){
-    if(t.indexOf('有千兆网关')>-1)extras.push('有千兆网关');
-    else if(t.indexOf('无千兆网关')>-1)extras.push('无千兆网关');
+  if(t.indexOf('无千兆网关')>-1)extras.push('无千兆网关');
+  if(t.indexOf('有千兆网关')>-1)extras.push('有千兆网关');
+  if(t.indexOf('不限量')>-1)extras.push('不限量套餐');
+  if(t.indexOf('话补')>-1){
+    var hb=t.match(/话补类优惠[（(]\s*(\d+\.?\d*)\s*元\s*[)）]/);
+    extras.push(hb?'有话补'+hb[1]+'元':'有话补优惠');
   }
-  if(extras.length>0)document.getElementById('extra').value=extras.join('，');
+  if(t.indexOf('异网')>-1||t.indexOf('并进')>-1)extras.push('可能有异网用户');
+  if(t.indexOf('商铺')>-1||t.indexOf('商业')>-1)extras.push('可能是商铺用户');
+  // 年龄
+  var agem=t.match(/(\d+)\s*岁/);
+  if(agem)extras.push('年龄'+agem[1]+'岁');
+
+  return {plan:planVal,avg:avgVal,card:cardVal,broad:broadVal,data:dataVal,fttr:fttrVal,extra:extras.join('，')};
+}
+
+function parseAndGenerate(){
+  var raw=n(document.getElementById('rawText').value);
+  if(!raw){toast('请粘贴画像内容或上传截图');return;}
+
+  var p=parseText(raw);
+
+  // 填入表单
+  if(p.plan)document.getElementById('plan').value=p.plan;
+  if(p.avg)document.getElementById('avgSpend').value=p.avg;
+  if(p.card)document.getElementById('cardInfo').value=p.card;
+  if(p.broad){
+    var sel=document.getElementById('broadSpeed');
+    for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===p.broad){sel.selectedIndex=i;break;}}
+  }
+  if(p.data)document.getElementById('dataUsage').value=p.data;
+  if(p.fttr)document.getElementById('fttrStatus').value=p.fttr;
+  if(p.extra)document.getElementById('extra').value=p.extra;
+
+  document.getElementById('infoCard').style.display='block';
+  generate();
 }
 
 function n(v){return v?v.trim():''}
@@ -347,10 +387,9 @@ function generate(){
   var fttr=document.getElementById('fttrStatus').value;
   var extra=n(document.getElementById('extra').value);
 
-  if(!plan&&!avgStr&&!dataStr&&!card&&!broad&&!fttr&&!extra&&!ocrText){toast('请上传图片或填写信息');return;}
+  if(!plan&&!avgStr&&!dataStr&&!card&&!broad&&!fttr&&!extra){toast('信息不足，请补充客户信息');return;}
 
   var avg=parseFloat(avgStr)||0;
-
   var dataIn=0,dataOut=0,flowOverflow=false;
   if(dataStr){
     var dp=dataStr.split('/');
@@ -370,24 +409,21 @@ function generate(){
   var broadVal=0;
   if(broad){var bm=broad.match(/(\d+)/);if(bm)broadVal=parseInt(bm[1]);}
   var noFTTR=(fttr==='无FTTR');
-  var hasFTTR=(fttr==='有FTTR');
   var hasBroad=broad&&broad!=='无宽带';
   var broadLow=hasBroad&&broadVal<=500;
 
   var extraL=extra.toLowerCase();
-  var ocrL=(ocrText||'').toLowerCase().replace(/\s+/g,'');
-  var combinedL=extraL+ocrL;
-  var hasITV=combinedL.indexOf('itv')>-1||combinedL.indexOf('电视')>-1;
-  var hasQiangCha=combinedL.indexOf('质差')>-1||combinedL.indexOf('卡顿')>-1;
-  var hasGame=combinedL.indexOf('游戏')>-1;
-  var hasEdu=combinedL.indexOf('教育')>-1||combinedL.indexOf('小孩')>-1||combinedL.indexOf('孩子')>-1||combinedL.indexOf('老人')>-1||combinedL.indexOf('家有')>-1;
-  var expiring=combinedL.indexOf('到期')>-1;
-  var hasKanjia=combinedL.indexOf('看家')>-1||combinedL.indexOf('监控')>-1||combinedL.indexOf('猫眼')>-1;
-  var isOldUser=combinedL.indexOf('老用户')>-1||combinedL.indexOf('网龄')>-1;
-  var isShop=combinedL.indexOf('商铺')>-1||combinedL.indexOf('商业')>-1||combinedL.indexOf('店面')>-1;
-  var kuanHuoYiBuHuo=combinedL.indexOf('宽活移不活')>-1;
+  var hasITV=extraL.indexOf('itv')>-1||extraL.indexOf('电视')>-1;
+  var hasQiangCha=extraL.indexOf('质差')>-1||extraL.indexOf('卡顿')>-1;
+  var hasGame=extraL.indexOf('游戏')>-1;
+  var hasEdu=extraL.indexOf('教育')>-1||extraL.indexOf('小孩')>-1||extraL.indexOf('孩子')>-1||extraL.indexOf('老人')>-1||extraL.indexOf('家有')>-1;
+  var expiring=extraL.indexOf('到期')>-1;
+  var hasKanjia=extraL.indexOf('看家')>-1||extraL.indexOf('监控')>-1||extraL.indexOf('猫眼')>-1;
+  var isOldUser=extraL.indexOf('老用户')>-1||extraL.indexOf('网龄')>-1;
+  var isShop=extraL.indexOf('商铺')>-1||extraL.indexOf('商业')>-1||extraL.indexOf('店面')>-1;
+  var kuanHuoYiBuHuo=extraL.indexOf('宽活移不活')>-1;
 
-  // === 关键信息 ===
+  // 关键信息
   var keyInfo=[];
   if(plan)keyInfo.push('当前套餐：'+plan);
   if(avg>0)keyInfo.push('近三月均消：'+avg+'元');
@@ -403,7 +439,7 @@ function generate(){
   if(expiring)keyInfo.push('有协议即将到期');
   if(isOldUser)keyInfo.push('电信老用户');
 
-  // === 背后商机 ===
+  // 背后商机
   var opportunities=[];
 
   if(flowOverflow){
@@ -412,7 +448,6 @@ function generate(){
     s+='切入首推';
     opportunities.push(s);
   }
-
   if(noFTTR){
     var s='从①无FTTR，复杂户型或房间多可能存在WiFi覆盖死角，上网体验差';
     if(hasQiangCha)s+='，②已有网络质差问题，说明WiFi信号确实存在薄弱区域';
@@ -420,142 +455,103 @@ function generate(){
     s+='。上门给用户检测设备，如网速与套餐不匹配推荐焕新设备或排查线路切入';
     opportunities.push(s);
   }
-
   if(broadLow){
     var s='从①宽带速率仅'+broad+'，高峰期可能出现卡顿，刷视频、上网课、办公容易抢网速';
     if(noFTTR)s+='，②无FTTR，大户型或复杂户型可能存在WiFi覆盖死角';
-    s+='。升级千兆/2000M宽带+FTTR全屋组网，全屋网速更稳、互不干扰，看电视、上网、办公都流畅不耽误切入';
+    s+='。升级千兆/2000M宽带+FTTR全屋组网，全屋网速更稳、互不干扰切入';
     opportunities.push(s);
   }
-
   if(hasSilent){
     var s='从①'+silentCards+'张号卡沉睡（长期不用），用户有闲置号码，可进行全家笔算激活使用';
     if(cardMulti)s+='，②多卡家庭，推荐副卡流量扩容，每张副卡可享额外20G流量';
-    s+='。激活沉默号卡，全家一起用，既不浪费号码又能共享更多流量切入';
+    s+='。激活沉默号卡，全家一起用切入';
     opportunities.push(s);
   }
-
   if(cardMulti&&!hasSilent){
-    opportunities.push('从多号卡（'+(activeCards+silentCards)+'张），多卡家庭套餐共享更划算。可推荐副卡流量扩容，每张副卡可享额外20G流量，全家一起用，流量更多更灵活切入');
+    opportunities.push('从多号卡（'+(activeCards+silentCards)+'张），可推荐副卡流量扩容，每张副卡可享额外20G流量，全家一起用切入');
   }
-
   if(hasGame||hasEdu){
     var s='从';
-    if(hasGame&&hasEdu)s+='①用户有游戏偏好对网速有需求，②有教育偏好可能家有小孩需要上网课，可挖掘天翼智屏/看家的使用需求';
-    else if(hasGame)s+='①用户有游戏偏好对网速有需求，对网络延迟和带宽要求高，②游戏用户通常对家庭网络品质关注，可挖掘FTTR升级需求';
-    else s+='①可能有小孩需要上网课/老人看电视，②家庭场景对智屏和看家产品有需求，可挖掘天翼智屏/看家/视联的使用需求';
+    if(hasGame&&hasEdu)s+='①游戏偏好对网速有需求，②教育偏好可能家有小孩上网课，可挖掘天翼智屏/看家需求';
+    else if(hasGame)s+='①游戏偏好对网速有需求，②可挖掘FTTR升级需求';
+    else s+='①可能有小孩上网课/老人看电视，②可挖掘天翼智屏/看家/视联需求';
     s+='切入';
     opportunities.push(s);
   }
-
-  if(expiring){
-    opportunities.push('从①协议即将到期，存在流失风险，②老用户对电信有基础信任，入网时间长，③可参与网龄购机或预存活动，既加固关系又享受优惠切入');
-  }
-
-  if(hasQiangCha&&!noFTTR){
-    opportunities.push('从①已有网络质差问题，可能是老旧路由器或非WiFi6设备导致，②有FTTR但可能需增加边缘网关扩展覆盖，③上门检测信号，若网速与套餐不匹配推荐焕新设备切入次推');
-  }
-
-  if(isOldUser&&!expiring){
-    opportunities.push('从①电信老用户，网龄长，对电信有信任基础，②机龄较长或可参与网龄购机，③可从升级更好套餐+网龄购机组合切入');
-  }
-
-  if(kuanHuoYiBuHuo){
-    opportunities.push('从①宽带活跃说明用户在家上网多，但移动不活跃说明手机卡没在用或话费不够，②推荐融产品套餐，固移融合提升移网使用，③从"家里上网多但手机套餐跟不上"切入推融合升级');
-  }
-
-  if(isShop){
-    opportunities.push('从①可能是商铺用户，房间多、户型复杂，应该有信号死角，对网速要求较高，②商铺场景对网络稳定性要求更高，推荐FTTR全屋覆盖+高带宽套餐切入');
-  }
-
+  if(expiring)opportunities.push('从①协议即将到期存在流失风险，②老用户对电信有信任基础，③可参与网龄购机或预存活动加固关系切入');
+  if(hasQiangCha&&!noFTTR)opportunities.push('从①已有网络质差，可能是老旧路由器导致，②上门检测信号推荐焕新设备切入次推');
+  if(isOldUser&&!expiring)opportunities.push('从①老用户网龄长对电信有信任，②机龄较长或可参与网龄购机切入');
+  if(kuanHuoYiBuHuo)opportunities.push('从①宽带活跃但移动不活跃，②推荐融产品套餐固移融合提升移网使用切入');
+  if(isShop)opportunities.push('从①商铺用户房间多户型复杂有信号死角，②对网络稳定性要求更高，推荐FTTR全屋覆盖切入');
   if(avg>0&&plan){
-    var planMatch=plan.match(/(\d+)/);
-    var planPrice=planMatch?parseInt(planMatch[1]):0;
-    if(planPrice>0&&avg<planPrice*0.8){
-      opportunities.push('从月均消费'+avg+'元低于套餐价'+planPrice+'元，说明有话补类优惠，实际消费潜力被压制，推升套餐时需注意实收金额范围');
-    }else if(avg>planPrice*1.2){
-      opportunities.push('从月均消费'+avg+'元高于套餐价'+planPrice+'元，可能有额外消费项，套餐不够用需要升档');
-    }
+    var pm=plan.match(/(\d+)/);var pp=pm?parseInt(pm[1]):0;
+    if(pp>0&&avg<pp*0.8)opportunities.push('从月均消费'+avg+'元低于套餐价'+pp+'元，有话补类优惠，推升套餐时需注意实收金额范围');
+    else if(avg>pp*1.2)opportunities.push('从月均消费'+avg+'元高于套餐价'+pp+'元，套餐不够用需升档');
   }
-
   if(opportunities.length===0){
-    if(avg>=129)opportunities.push('从套餐使用情况分析，当前消费水平有升级更高速率/更多流量套餐的空间，切入推荐5G-A套餐或加装FTTR/智屏');
-    else if(avg>=99)opportunities.push('从消费水平看，可升级至169美好家套餐，享受千兆宽带+FTTR全屋覆盖，切入推荐');
-    else opportunities.push('从套餐消费偏低，可推荐融合套餐或单转融，切入升档提升价值');
+    if(avg>=129)opportunities.push('从当前消费水平有升级更高速率/更多流量套餐的空间切入');
+    else if(avg>=99)opportunities.push('从消费水平可升级至169美好家套餐切入');
+    else opportunities.push('从套餐消费偏低可推荐融合套餐或单转融切入');
   }
 
-  // === 推荐产品 ===
+  // 推荐产品
   var primary=[],secondary=[],fallback=[];
-
   if(flowOverflow){
-    if(avg>=199)primary.push({name:'239元5G-A套餐',reason:'流量扩至120G，网速提升2000M，加FTTR 1拖2',entry:'从流量溢出切入',extra:'每月多花'+(239-avg).toFixed(0)+'元'});
-    else if(avg>=139)primary.push({name:'199元5G-A套餐',reason:'流量扩至100G，网速提升2000M，加FTTR 1拖2',entry:'从流量溢出切入',extra:'每月多花'+(199-avg).toFixed(0)+'元'});
-    else if(avg>=99)primary.push({name:'169元美好家套餐',reason:'流量扩至80G，宽带提至1000M，含FTTR 1拖1',entry:'从流量溢出切入',extra:'每月多花'+(169-avg).toFixed(0)+'元'});
-    else primary.push({name:'139元融合套餐',reason:'升级融合套餐，含宽带提速+流量扩容',entry:'从流量溢出切入'});
+    if(avg>=199)primary.push({name:'239元5G-A套餐',reason:'流量扩至120G+2000M+FTTR 1拖2',entry:'从流量溢出切入',extra:'每月多花'+(239-avg).toFixed(0)+'元'});
+    else if(avg>=139)primary.push({name:'199元5G-A套餐',reason:'流量扩至100G+2000M+FTTR 1拖2',entry:'从流量溢出切入',extra:'每月多花'+(199-avg).toFixed(0)+'元'});
+    else if(avg>=99)primary.push({name:'169元美好家套餐',reason:'流量80G+1000M+FTTR 1拖1',entry:'从流量溢出切入',extra:'每月多花'+(169-avg).toFixed(0)+'元'});
+    else primary.push({name:'139元融合套餐',reason:'含宽带提速+流量扩容',entry:'从流量溢出切入'});
   }else if(noFTTR&&avg>=129){
-    if(avg>=199)primary.push({name:'239元5G-A套餐',reason:'流量120G+2000M+FTTR 1拖2，全屋覆盖',entry:'从无FTTR可能有WiFi死角切入',extra:'每月多花'+(239-avg).toFixed(0)+'元'});
-    else if(avg>=139)primary.push({name:'199元5G-A套餐',reason:'流量100G+2000M+FTTR 1拖2，全屋覆盖',entry:'从无FTTR可能有WiFi死角切入',extra:'每月多花'+(199-avg).toFixed(0)+'元'});
-    else primary.push({name:'169元美好家套餐',reason:'80G+1000M+FTTR 1拖1，解决WiFi覆盖问题',entry:'从无FTTR可能有WiFi死角切入',extra:'每月多花'+(169-avg).toFixed(0)+'元'});
+    if(avg>=199)primary.push({name:'239元5G-A套餐',reason:'120G+2000M+FTTR 1拖2全屋覆盖',entry:'从无FTTR有WiFi死角切入',extra:'每月多花'+(239-avg).toFixed(0)+'元'});
+    else if(avg>=139)primary.push({name:'199元5G-A套餐',reason:'100G+2000M+FTTR 1拖2全屋覆盖',entry:'从无FTTR有WiFi死角切入',extra:'每月多花'+(199-avg).toFixed(0)+'元'});
+    else primary.push({name:'169元美好家套餐',reason:'80G+1000M+FTTR 1拖1',entry:'从无FTTR有WiFi死角切入',extra:'每月多花'+(169-avg).toFixed(0)+'元'});
   }else if(hasSilent&&avg>=199){
-    primary.push({name:'升级199/239 5G-A套餐+满卡流量',reason:'升档扩流量，副卡每张+20G，激活沉默号卡全家一起用',entry:'从沉默号卡切入'});
+    primary.push({name:'升级199/239 5G-A+满卡流量',reason:'升档扩流量+副卡每张+20G，激活沉默号卡全家一起用',entry:'从沉默号卡切入'});
   }else if(broadLow&&avg>=99){
-    if(avg>=139)primary.push({name:'199元5G-A套餐',reason:'宽带提速至2000M，全屋覆盖，流量100G',entry:'从宽带速率低网速体验差切入',extra:'每月多花'+(199-avg).toFixed(0)+'元'});
-    else primary.push({name:'169元美好家套餐',reason:'宽带提至1000M+FTTR 1拖1',entry:'从宽带速率低网速体验差切入',extra:'每月多花'+(169-avg).toFixed(0)+'元'});
+    if(avg>=139)primary.push({name:'199元5G-A套餐',reason:'宽带提速2000M+全屋覆盖',entry:'从宽带速率低切入',extra:'每月多花'+(199-avg).toFixed(0)+'元'});
+    else primary.push({name:'169元美好家套餐',reason:'宽带提至1000M+FTTR 1拖1',entry:'从宽带速率低切入',extra:'每月多花'+(169-avg).toFixed(0)+'元'});
   }else if(avg>=139){
-    primary.push({name:'199元5G-A套餐',reason:'流量100G+2000M+FTTR 1拖2',entry:'从套餐升级空间切入',extra:'每月多花'+(199-avg).toFixed(0)+'元'});
+    primary.push({name:'199元5G-A套餐',reason:'100G+2000M+FTTR 1拖2',entry:'从套餐升级空间切入',extra:'每月多花'+(199-avg).toFixed(0)+'元'});
   }else if(avg>=99){
-    primary.push({name:'169元美好家套餐',reason:'80G+1000M+FTTR 1拖1',entry:'从升级套餐提升体验切入',extra:'每月多花'+(169-avg).toFixed(0)+'元'});
+    primary.push({name:'169元美好家套餐',reason:'80G+1000M+FTTR 1拖1',entry:'从提升体验切入',extra:'每月多花'+(169-avg).toFixed(0)+'元'});
   }else{
-    primary.push({name:'139元融合套餐',reason:'含宽带+流量+语音，从单宽转融或低套餐升档',entry:'从套餐不匹配切入'});
+    primary.push({name:'139元融合套餐',reason:'含宽带+流量+语音',entry:'从套餐不匹配切入'});
   }
 
-  if(noFTTR&&avg>=129&&primary[0].name.indexOf('FTTR')===-1){
-    secondary.push({name:'加装30元/月FTTR',reason:'焕新设备，全屋WiFi覆盖',entry:'从无FTTR可能有WiFi死角切入'});
-  }else if(hasSilent&&primary[0].name.indexOf('满卡')===-1){
-    secondary.push({name:'副卡加装+满卡流量扩容',reason:'激活沉默号卡，每副卡+20G',entry:'从沉默号卡切入'});
-  }else if(hasITV&&avg>=129){
-    secondary.push({name:'加装20元天翼智屏',reason:'智屏30+信息优惠10，看电视体验更好',entry:'从有iTV使用需求切入'});
-  }else if(hasKanjia||(hasEdu&&hasBroad)){
-    secondary.push({name:'加装10元天翼视联',reason:'3天AI监控，看家护院',entry:'从安全需求切入'});
-  }else if(avg>=129){
-    secondary.push({name:'加装20元天翼智屏',reason:'看电视+信息优惠',entry:'从家庭娱乐需求切入'});
-  }else{
-    secondary.push({name:'加装FTTR或智屏',reason:'提升网络体验或增加家庭娱乐',entry:'从家庭需求切入'});
-  }
+  if(noFTTR&&avg>=129&&primary[0].name.indexOf('FTTR')===-1)
+    secondary.push({name:'加装30元/月FTTR',reason:'焕新设备全屋WiFi覆盖',entry:'从无FTTR有WiFi死角切入'});
+  else if(hasSilent&&primary[0].name.indexOf('满卡')===-1)
+    secondary.push({name:'副卡加装+满卡流量扩容',reason:'激活沉默号卡每副卡+20G',entry:'从沉默号卡切入'});
+  else if(hasITV&&avg>=129)
+    secondary.push({name:'加装20元天翼智屏',reason:'智屏30+信息优惠10',entry:'从有iTV切入'});
+  else if(hasKanjia||(hasEdu&&hasBroad))
+    secondary.push({name:'加装10元天翼视联',reason:'3天AI监控看家护院',entry:'从安全需求切入'});
+  else if(avg>=129)
+    secondary.push({name:'加装20元天翼智屏',reason:'看电视+信息优惠',entry:'从家庭娱乐切入'});
+  else
+    secondary.push({name:'加装FTTR或智屏',reason:'提升网络/娱乐体验',entry:'从家庭需求切入'});
 
-  if(expiring||isOldUser){
-    fallback.push({name:'预存360元活动',reason:'360元分12月返还（月返30元）+120G流量（月10G），续约加固',entry:'从协议续约加固切入'});
-  }else if(hasSilent){
-    fallback.push({name:'副卡加装送流量',reason:'激活沉默号卡，全家共享',entry:'从号卡激活切入'});
-  }else{
-    fallback.push({name:'预存360元活动',reason:'360元分12月返还（月返30元）+120G流量（月10G）',entry:'从话费优惠切入'});
-  }
+  if(expiring||isOldUser)
+    fallback.push({name:'预存360元活动',reason:'360元分12月返(月30元)+120G流量(月10G)续约加固',entry:'从续约加固切入'});
+  else if(hasSilent)
+    fallback.push({name:'副卡加装送流量',reason:'激活沉默号卡全家共享',entry:'从号卡激活切入'});
+  else
+    fallback.push({name:'预存360元活动',reason:'360元分12月返(月30元)+120G流量(月10G)',entry:'从话费优惠切入'});
 
-  // === 组装输出 ===
   var lines=[];
   lines.push('【关键信息】');
   lines.push(keyInfo.join('，'));
-
   lines.push('');
   lines.push('【背后商机】');
-  for(var i=0;i<opportunities.length;i++){
-    lines.push((i+1)+'.'+opportunities[i]);
-  }
-
+  for(var i=0;i<opportunities.length;i++)lines.push((i+1)+'.'+opportunities[i]);
   lines.push('');
   lines.push('【推荐产品】');
-  if(primary.length>0){
-    var p=primary[0];
-    lines.push('首推：'+p.name+'，'+p.reason+'（'+p.entry+'）'+(p.extra?'，'+p.extra:''));
-  }
-  if(secondary.length>0){
-    var s2=secondary[0];
-    lines.push('次推：'+s2.name+'，'+s2.reason+'（'+s2.entry+'）');
-  }
-  if(fallback.length>0){
-    var f=fallback[0];
-    lines.push('兜底：'+f.name+'，'+f.reason+'（'+f.entry+'）');
-  }
+  var p=primary[0];
+  lines.push('首推：'+p.name+'，'+p.reason+'（'+p.entry+'）'+(p.extra?'，'+p.extra:''));
+  var s2=secondary[0];
+  lines.push('次推：'+s2.name+'，'+s2.reason+'（'+s2.entry+'）');
+  var f=fallback[0];
+  lines.push('兜底：'+f.name+'，'+f.reason+'（'+f.entry+'）');
 
   var text=lines.join('\n');
   document.getElementById('resultContent').textContent=text;
@@ -570,20 +566,16 @@ function copyResult(){
   if(!text){toast('还没有生成配餐');return;}
   copyText(text);
 }
-
 function copyText(text){
-  if(navigator.clipboard&&navigator.clipboard.writeText){
+  if(navigator.clipboard&&navigator.clipboard.writeText)
     navigator.clipboard.writeText(text).then(function(){toast('已复制！粘贴发群')}).catch(function(){fbCopy(text)});
-  }else{fbCopy(text)}
+  else fbCopy(text);
 }
-
 function fbCopy(text){
   var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';
-  document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制！粘贴发群')}catch(e){toast('复制失败，请手动选择')}document.body.removeChild(ta);
+  document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制！粘贴发群')}catch(e){toast('复制失败')}document.body.removeChild(ta);
 }
-
 function toast(m,d){var t=document.getElementById('toast');t.textContent=m;t.classList.add('sh');setTimeout(function(){t.classList.remove('sh')},d||2500)}
 </script>
-
 </body>
 </html>
