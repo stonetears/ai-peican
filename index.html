@@ -254,7 +254,10 @@ function generate(){
   var lines=[];
   lines.push('【AI配餐请求】');
   lines.push('');
-  if(hasImage)lines.push('（已上传客户画像截图，请先识别图片中的客户信息）');
+  lines.push('请根据以下客户信息进行AI配餐。');
+  lines.push('');
+  lines.push('━━ 客户信息 ━━');
+  if(hasImage)lines.push('（已上传客户画像截图，请先识别图片中的全部客户信息）');
   if(oid)lines.push('工单号：'+oid);
   if(cp)lines.push('结对CP：'+cp);
   if(plan)lines.push('当前套餐：'+plan);
@@ -264,16 +267,39 @@ function generate(){
     lines.push('流量：套内'+dp[0].trim()+(dp[1]?'，月均用'+dp[1].trim():''));
   }
   if(broad)lines.push('宽带速率：'+broad);
-  if(extra){lines.push('');lines.push('── 画像补充 ──');lines.push(extra);}
+  if(extra){lines.push('补充：'+extra);}
   lines.push('');
-  lines.push('请根据以上信息进行AI配餐，输出：');
-  lines.push('1) 画像分析（不要照搬画像，要有自己的分析判断）');
-  lines.push('2) 痛点挖掘（从套餐匹配度、流量、网络质量、产品空缺等维度）');
-  lines.push('3) 首推方案（产品名称+价格+条件匹配+推荐理由）');
-  lines.push('4) 次推方案（同上）');
-  lines.push('5) 兜底方案（同上）');
+  lines.push('━━ 输出要求 ━━');
   lines.push('');
-  lines.push('要求：每层只选一个方案，产品必须符合政策条件（注意实收金额范围），按首推/次推/兜底三层结构完整输出。');
+  lines.push('请严格按以下三段式输出配餐方案：');
+  lines.push('');
+  lines.push('【关键信息】');
+  lines.push('从画像中提炼关键信息（年龄、套餐、消费、号卡、宽带、FTTR、流量使用等），用自己的话概括，不要照搬系统标签');
+  lines.push('');
+  lines.push('【背后商机】');
+  lines.push('从关键信息中挖掘客户痛点和需求，每个痛点说明推荐切入点，例如：');
+  lines.push('• 从流量溢出→对流量需求大，切入升套餐');
+  lines.push('• 从无FTTR→可能有WiFi覆盖死角，切入加装FTTR');
+  lines.push('• 从沉默号卡→可满卡流量扩容，激活全家一起用');
+  lines.push('• 从宽带速率低→网速体验差，切入升档提速');
+  lines.push('• 从有游戏/教育偏好→可能家有小孩，切入智屏/看家');
+  lines.push('');
+  lines.push('【推荐产品】');
+  lines.push('首推：（最匹配痛点的方案，含产品名称+价格+推荐理由+切入点）');
+  lines.push('次推：（备选方案，从另一个痛点切入）');
+  lines.push('兜底：（最基础的保底方案，如预存360、副卡加装、流量包等）');
+  lines.push('');
+  lines.push('━━ 注意事项 ━━');
+  lines.push('1. 关键信息不能照搬画像标签，必须有独立的分析和提炼');
+  lines.push('2. 背后商机必须有推导过程，不能只列推荐不说明原因');
+  lines.push('3. 首推/次推/兜底三层必须完整，每层只选一个方案');
+  lines.push('4. 推荐产品必须符合政策条件，注意实收金额范围：');
+  lines.push('   - 169美好家：实收[99,159)');
+  lines.push('   - 199 5G-A：实收[139,399)');
+  lines.push('   - 20元FTTR：实收≥129');
+  lines.push('   - 20元智屏：实收≥129');
+  lines.push('   - 存量用户不允许单独加装二宽');
+  lines.push('5. 首推和次推的切入点要不同，从不同痛点维度推荐');
 
   var text=lines.join('\n');
   document.getElementById('resultContent').textContent=text;
