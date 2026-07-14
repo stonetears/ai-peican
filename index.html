@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>AI配餐助手</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--p:#0B5DAA;--pl:#EBF3FB;--pd:#074075;--ok:#0AAF74;--warn:#F58520;--err:#D94841;--bg:#EFF3F8;--card:#fff;--t1:#1C2333;--t2:#545C6C;--t3:#8B95A5;--bd:#DEE2E9;--r:14px}
@@ -27,6 +28,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 .pv-btn:active{transform:scale(.97)}
 .pv-btn.red{color:var(--err);border-color:#F5D5D3}
 .tip-box{background:linear-gradient(135deg,#FFF8ED,#FFF2DB);border-radius:10px;padding:12px 14px;margin-bottom:10px;border-left:4px solid var(--warn);font-size:12px;color:var(--t2);line-height:1.6}
+.tip-box strong{color:#C06A00}
 .res-box{background:var(--pl);border:1.5px solid #B8D4F0;border-radius:12px;padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;word-break:break-all;max-height:60vh;overflow-y:auto;color:var(--t1);margin-bottom:8px}
 .copy-hint{text-align:center;font-size:11px;color:var(--t3);margin-top:6px}
 .btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;font-family:inherit;letter-spacing:.5px}
@@ -48,6 +50,8 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:13px;color:var(--p);font-weight:500}
 .loading-sub{font-size:11px;color:var(--t3);margin-top:4px}
+.progress-bar{width:80%;height:6px;background:#D0D8E8;border-radius:3px;overflow:hidden;margin:8px auto 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--ok));border-radius:3px;transition:width .3s;width:0}
 </style>
 </head>
 <body>
@@ -83,8 +87,9 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
   <div class="card">
     <div class="loading-box">
       <div class="loading-spin"></div>
-      <div class="loading-text">AI正在识别图片并生成配餐…</div>
-      <div class="loading-sub" id="loadingSub">约需10-20秒，请稍候</div>
+      <div class="loading-text" id="loadingTitle">正在识别图片…</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="loading-sub" id="loadingSub">正在加载OCR引擎…</div>
     </div>
   </div>
 </div>
@@ -116,7 +121,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 </div>
 
 <div class="bb">
-  <button class="btn btn1" id="mainBtn" onclick="generateFromImage()">&#x1F916; 生成配餐</button>
+  <button class="btn btn1" id="mainBtn" onclick="startGenerate()">&#x1F916; 生成配餐</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -124,7 +129,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 <script>
 var imageBase64=null;
 var _dk='sk-57d7610be4a0487c8502338edd05b9da';
-
 
 var uz=document.getElementById('uploadZone');
 uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('dg')});
@@ -146,6 +150,7 @@ function handleFile(files){
     document.getElementById('previewArea').classList.add('sh');
     uz.style.display='none';
     document.getElementById('resultBox').style.display='none';
+    document.getElementById('loadingCard').style.display='none';
   };
   r.readAsDataURL(f);
 }
@@ -160,7 +165,13 @@ function clearImage(){
   document.getElementById('loadingCard').style.display='none';
 }
 
-async function generateFromImage(){
+function setLoading(title,sub,pct){
+  document.getElementById('loadingTitle').textContent=title;
+  document.getElementById('loadingSub').textContent=sub;
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+
+async function startGenerate(){
   if(!imageBase64){toast('请先上传客户画像截图');return;}
 
   var btn=document.getElementById('mainBtn');
@@ -168,10 +179,46 @@ async function generateFromImage(){
   btn.textContent='⏳ 生成中…';
   document.getElementById('loadingCard').style.display='block';
   document.getElementById('resultBox').style.display='none';
+  setLoading('正在识别图片…','正在加载OCR引擎…',5);
 
-  var prompt='你是中国电信黄山分公司客户经营中心的配餐专家。请根据图片中的客户画像信息，生成标准配餐方案。\n\n严格要求：\n1. 输出格式必须为三段式：\n【关键信息】\n总结客户当前套餐、消费、号卡、宽带、流量、FTTR等核心信息（不要照搬画像标签，要用自己的话归纳）\n\n【背后商机】\n逐条分析客户痛点和需求，每条以"从①…②…切入"的格式\n\n【推荐产品】\n首推：产品名+构成+切入原因（必须是实收金额符合条件的产品）\n次推：附加产品+原因\n兜底：保底方案+原因\n\n2. 产品政策对照表（必须严格遵守条件）：\n- 169美好家：实收[99,159)元 → 169+80G+1000M+FTTR 1拖1\n- 199 5G-A：实收[139,399)元 → 199+100G+2000M+FTTR 1拖2\n- 239 5G-A：实收[199,399)元 → 239+120G+2000M+FTTR 1拖2\n- 20元FTTR加装：实收≥129元 → 主网关20+边缘10+组网10\n- 20元智屏加装：实收≥129元 → 智屏30+信息优惠10\n- 10元视联加装：含宽 → 视联3天AI监控10元\n- 满卡流量：≥199融合 → 每副卡+20G\n- 预存360：不限 → 360元分12月返(月30元)+120G(月10G)\n\n3. 核心规则：\n- 绝对不能照搬画像标签原文，必须做独立分析归纳\n- 推荐产品必须符合实收金额条件\n- 存量用户不允许单独加装二宽\n- 有沉默号卡要推荐满卡流量激活\n- 无FTTR要推荐FTTR加装\n- 流量溢出要推荐升档扩流量\n- 宽带低速率要推荐提速\n- 每条商机要写清楚①②推导逻辑\n\n请直接输出配餐方案，不要输出其他解释。';
+  // Step 1: OCR识别
+  var ocrText='';
+  try{
+    var worker=await Tesseract.createWorker('chi_sim',1,{
+      logger:function(m){
+        if(m.status==='recognizing text'){
+          var p=Math.round(m.progress*100);
+          setLoading('正在识别文字…',p+'%',5+p*0.5);
+        }else if(m.status==='loading language traineddata'){
+          setLoading('正在加载OCR引擎…','下载中文识别包…',10);
+        }else if(m.status==='initializing api'){
+          setLoading('正在初始化…','准备识别…',15);
+        }
+      }
+    });
+    var result=await worker.recognize(imageBase64);
+    ocrText=result.data.text;
+    await worker.terminate();
+    setLoading('文字识别完成','正在生成配餐方案…',60);
+  }catch(err){
+    setLoading('OCR识别失败','尝试直接生成…',60);
+    ocrText='';
+  }
+
+  if(!ocrText||ocrText.trim().length<10){
+    document.getElementById('loadingCard').style.display='none';
+    btn.disabled=false;
+    btn.textContent='\uD83E\uDD16 生成配餐';
+    toast('图片识别失败，请确保截图清晰完整');
+    return;
+  }
+
+  // Step 2: DeepSeek文本模型生成配餐
+  var prompt='你是中国电信黄山分公司客户经营中心的配餐专家。\n\n以下是通过OCR从客户画像截图中识别出的文字（可能有不准确的地方，请根据上下文推断修正）：\n\n---\n'+ocrText+'\n---\n\n请根据以上信息，生成标准配餐方案。\n\n严格要求：\n1. 输出格式必须为三段式：\n【关键信息】\n总结客户当前套餐、消费、号卡、宽带、流量、FTTR等核心信息（不要照搬画像标签，要用自己的话归纳）\n\n【背后商机】\n逐条分析客户痛点和需求，每条以"从①…②…切入"的格式\n\n【推荐产品】\n首推：产品名+构成+切入原因（必须是实收金额符合条件的产品）\n次推：附加产品+原因\n兜底：保底方案+原因\n\n2. 产品政策对照表（必须严格遵守条件）：\n- 169美好家：实收[99,159)元 → 169+80G+1000M+FTTR 1拖1\n- 199 5G-A：实收[139,399)元 → 199+100G+2000M+FTTR 1拖2\n- 239 5G-A：实收[199,399)元 → 239+120G+2000M+FTTR 1拖2\n- 20元FTTR加装：实收≥129元 → 主网关20+边缘10+组网10\n- 20元智屏加装：实收≥129元 → 智屏30+信息优惠10\n- 10元视联加装：含宽 → 视联3天AI监控10元\n- 满卡流量：≥199融合 → 每副卡+20G\n- 预存360：不限 → 360元分12月返(月30元)+120G(月10G)\n\n3. 核心规则：\n- 绝对不能照搬画像标签原文，必须做独立分析归纳\n- 推荐产品必须符合实收金额条件\n- 存量用户不允许单独加装二宽\n- 有沉默号卡要推荐满卡流量激活\n- 无FTTR要推荐FTTR加装\n- 流量溢出要推荐升档扩流量\n- 宽带低速率要推荐提速\n- 每条商机要写清楚①②推导逻辑\n\n请直接输出配餐方案，不要输出其他解释。';
 
   try{
+    setLoading('AI正在生成配餐…','约需10-20秒，请稍候',70);
+
     var resp=await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{
@@ -179,14 +226,8 @@ async function generateFromImage(){
         'Authorization':'Bearer '+_dk
       },
       body:JSON.stringify({
-        model:'deepseek-vl2',
-        messages:[{
-          role:'user',
-          content:[
-            {type:'image_url',image_url:{url:imageBase64}},
-            {type:'text',text:prompt}
-          ]
-        }],
+        model:'deepseek-chat',
+        messages:[{role:'user',content:prompt}],
         temperature:0.3,
         max_tokens:1500
       })
@@ -198,6 +239,8 @@ async function generateFromImage(){
       if(resp.status===429)throw new Error('请求太频繁，请稍后再试');
       throw new Error('服务异常('+resp.status+')，请稍后重试');
     }
+
+    setLoading('配餐方案生成完毕！','',100);
 
     var data=await resp.json();
     var text=data.choices[0].message.content.trim();
