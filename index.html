@@ -178,7 +178,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 </div>
 
 <div class="bb">
-  <button class="btn btn1" id="mainBtn" onclick="generate()">&#x1F916; 生成配餐</button>
+  <button class="btn btn1" id="aiBtn" onclick="generateAI()">&#x1F916; AI直接生成配餐</button>
+  <button class="btn btn2" id="copyBtn" onclick="generateText()" style="margin-top:8px">&#x1F4CB; 生成配餐请求（免费）</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -292,14 +293,59 @@ function buildPrompt(){
   return {system:systemPrompt, user:userParts};
 }
 
-function generate(){
+function generateText(){
+  var plan=document.getElementById('plan').value.trim();
+  var avg=document.getElementById('avgSpend').value.trim();
+  var oid=document.getElementById('orderId').value.trim();
+  var cp=document.getElementById('cpName').value.trim();
+  var data=document.getElementById('dataUsage').value.trim();
+  var broad=document.getElementById('broadSpeed').value;
+  var extra=document.getElementById('extra').value.trim();
+
+  if(!plan&&!avg&&!imageBase64){toast('请上传画像或填写信息');return;}
+
+  var lines=[];
+  lines.push('【AI配餐请求】');
+  lines.push('');
+  lines.push('请根据以下客户信息进行配餐：');
+  lines.push('');
+  if(imageBase64)lines.push('（已上传客户画像截图，请识别图片中的客户信息）');
+  if(oid)lines.push('工单号：'+oid);
+  if(cp)lines.push('结对CP：'+cp);
+  if(plan)lines.push('当前套餐：'+plan);
+  if(avg)lines.push('月均消费：'+avg+'元');
+  if(data){
+    var dp=data.split('/');
+    lines.push('流量：套内'+dp[0].trim()+(dp[1]?'，月均用'+dp[1].trim():''));
+  }
+  if(broad)lines.push('宽带速率：'+broad);
+  if(extra)lines.push('补充信息：'+extra);
+  lines.push('');
+  lines.push('━━ 输出要求 ━━');
+  lines.push('【关键信息】提炼关键信息，用自己的话概括，不照搬标签');
+  lines.push('【背后商机】挖掘痛点+切入点（如：从无FTTR→有WiFi死角，切入加FTTR）');
+  lines.push('【推荐产品】首推/次推/兜底完整，产品符合政策条件');
+  lines.push('');
+  lines.push('政策条件：169美好家实收[99,159) | 199 5G-A实收[139,399) | 239 5G-A实收[199,399) | 20元FTTR实收≥129 | 满卡流量≥199融合 | 存量不加二宽');
+
+  var text=lines.join('\n');
+  var resultContent=document.getElementById('resultContent');
+  var resultBox=document.getElementById('resultBox');
+  resultContent.textContent=text;
+  resultBox.classList.add('sh');
+  resultBox.scrollIntoView({behavior:'smooth',block:'start'});
+  copyText(text);
+  toast('已复制配餐请求！粘贴发群里');
+}
+
+function generateAI(){
   if(!imageBase64){
     var plan=document.getElementById('plan').value.trim();
     var avg=document.getElementById('avgSpend').value.trim();
     if(!plan&&!avg){toast('请上传客户画像或填写信息');return;}
   }
 
-  var btn=document.getElementById('mainBtn');
+  var btn=document.getElementById('aiBtn');
   btn.disabled=true;
   btn.textContent='AI正在生成配餐…';
 
@@ -311,11 +357,18 @@ function generate(){
 
   var prompt=buildPrompt();
 
+  var userContent;
+  if(imageBase64 && prompt.user.length>1){
+    userContent=prompt.user;
+  }else{
+    userContent=prompt.user.filter(function(p){return p.type==='text'}).map(function(p){return p.text}).join('\n');
+  }
+
   var body={
     model:'deepseek-chat',
     messages:[
       {role:'system',content:prompt.system},
-      {role:'user',content:prompt.user}
+      {role:'user',content:userContent}
     ],
     temperature:0.3,
     max_tokens:2000
@@ -330,25 +383,21 @@ function generate(){
     body:JSON.stringify(body)
   })
   .then(function(resp){
-    if(!resp.ok)throw new Error('API返回错误：'+resp.status);
+    if(!resp.ok)return resp.json().then(function(d){throw new Error(d.error&&d.error.message||'API错误'+resp.status)});
     return resp.json();
   })
   .then(function(data){
     var text=data.choices[0].message.content;
     resultContent.textContent=text;
     btn.disabled=false;
-    btn.textContent='重新生成配餐';
+    btn.textContent='AI直接生成配餐';
     toast('配餐已生成！');
   })
   .catch(function(err){
     console.error(err);
-    if(imageBase64 && String(err).indexOf('does not support')>-1 || String(err).indexOf('image')>-1){
-      resultContent.textContent='DeepSeek不支持图片识别，请先在下方填写客户关键信息，再点生成配餐。';
-    } else {
-      resultContent.textContent='生成失败：'+err.message+'\n\n请检查网络连接后重试。';
-    }
+    resultContent.textContent='生成失败：'+err.message+'\n\n请检查网络后重试，或使用「生成配餐请求」免费模式。';
     btn.disabled=false;
-    btn.textContent='重新生成配餐';
+    btn.textContent='AI直接生成配餐';
   });
 }
 
