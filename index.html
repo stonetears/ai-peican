@@ -41,10 +41,11 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 .pt{width:100%;border-collapse:collapse;font-size:10px;margin-top:6px}
 .pt th{background:var(--pl);color:var(--p);padding:5px 6px;text-align:left;font-weight:600;border:1px solid #C5D8EC;font-size:10px}
 .pt td{padding:4px 6px;border:1px solid var(--bd);color:var(--t2);line-height:1.4}
-.tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700}
+.tag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700;white-space:nowrap}
 .tag-b{background:#D9EAFC;color:var(--p)}
 .tag-g{background:#D5F4E6;color:var(--ok)}
 .tag-o{background:#FDEBD0;color:var(--warn)}
+.tag-r{background:#F5D5D3;color:var(--err)}
 .loading-box{background:var(--pl);border:1.5px solid #B8D4F0;border-radius:12px;padding:20px;text-align:center;margin-top:10px}
 .loading-spin{display:inline-block;width:32px;height:32px;border:3px solid #B8D4F0;border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -52,13 +53,18 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 .loading-sub{font-size:11px;color:var(--t3);margin-top:4px}
 .progress-bar{width:80%;height:6px;background:#D0D8E8;border-radius:3px;overflow:hidden;margin:8px auto 0}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--ok));border-radius:3px;transition:width .3s;width:0}
+.tab-row{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.tab-btn{padding:4px 8px;border-radius:6px;font-size:10px;cursor:pointer;border:1px solid var(--bd);background:#FAFBFC;color:var(--t2);font-family:inherit;font-weight:600}
+.tab-btn.act{background:var(--p);color:#fff;border-color:var(--p)}
+.tab-cnt{display:none}
+.tab-cnt.act{display:block}
 </style>
 </head>
 <body>
 
 <div class="hdr">
   <h1>&#x1F916; AI 配餐助手</h1>
-  <p class="sub">中国电信黄山分公司 · 客业中心</p>
+  <p class="sub">中国电信黄山分公司 · 客业中心 · 三季度版</p>
 </div>
 
 <div class="ctn">
@@ -104,18 +110,75 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 </div>
 
 <div class="card">
-  <div class="ct"><span>&#x1F4D6;</span> 政策速查</div>
+  <div class="ct"><span>&#x1F4D6;</span> 政策速查（三季度）</div>
+  <div class="tab-row">
+    <button class="tab-btn act" onclick="switchTab(this,'t0')">升套</button>
+    <button class="tab-btn" onclick="switchTab(this,'t1')">加装</button>
+    <button class="tab-btn" onclick="switchTab(this,'t2')">视联/iTV</button>
+    <button class="tab-btn" onclick="switchTab(this,'t3')">维系</button>
+    <button class="tab-btn" onclick="switchTab(this,'t4')">流量/购机</button>
+  </div>
+
+  <div id="t0" class="tab-cnt act">
   <table class="pt">
-    <tr><th>产品</th><th>条件</th><th>构成</th></tr>
-    <tr><td><span class="tag tag-b">169美好家</span></td><td>实收[99,159)</td><td>169+80G+1000M+FTTR 1拖1</td></tr>
-    <tr><td><span class="tag tag-b">199 5G-A</span></td><td>实收[139,399)</td><td>199+100G+2000M+FTTR 1拖2</td></tr>
-    <tr><td><span class="tag tag-b">239 5G-A</span></td><td>实收[199,399)</td><td>239+120G+2000M+FTTR 1拖2</td></tr>
-    <tr><td><span class="tag tag-g">20元FTTR</span></td><td>实收≥129</td><td>主网关20+边缘10+组网10</td></tr>
-    <tr><td><span class="tag tag-g">20元智屏</span></td><td>实收≥129</td><td>智屏30+信息优惠10</td></tr>
-    <tr><td><span class="tag tag-g">10元视联</span></td><td>含宽</td><td>视联3天AI监控10元</td></tr>
-    <tr><td><span class="tag tag-o">满卡流量</span></td><td>≥199融合</td><td>每副卡+20G</td></tr>
-    <tr><td><span class="tag tag-o">预存360</span></td><td>不限</td><td>360元分12月返(月30元)+120G(月10G)</td></tr>
+    <tr><th>套餐</th><th>有FTTR实收</th><th>无FTTR实收</th><th>核心内容</th></tr>
+    <tr><td><span class="tag tag-b">169美好家</span></td><td>[129,169)</td><td>[129,159)</td><td>80G+500分+1000M+FTTR1拖1</td></tr>
+    <tr><td><span class="tag tag-b">199 5G-A</span></td><td>[139,199)</td><td>[139,189)</td><td>100G+1000分+2000M+FTTR1拖2</td></tr>
+    <tr><td><span class="tag tag-b">239 5G-A</span></td><td>[199,239)</td><td>[189,229)</td><td>120G+1000分+2000M+FTTR1拖2</td></tr>
+    <tr><td><span class="tag tag-b">299 5G-A</span></td><td>[239,299)</td><td>[229,289)</td><td>150G+1500分+2000M+FTTR1拖2</td></tr>
   </table>
+  <div style="font-size:9px;color:var(--t3);margin-top:4px">&#x26A0;&#xFE0F; 169及以上FTTR套餐不得低迁；升169+提值≥30元→末梢60元；升199+提值≥50元→末梢150元</div>
+  </div>
+
+  <div id="t1" class="tab-cnt">
+  <table class="pt">
+    <tr><th>产品</th><th>条件</th><th>价格/内容</th></tr>
+    <tr><td><span class="tag tag-g">FTTR加装</span></td><td>实收≥129</td><td>20元/月(主网关20+边缘10+组网10)</td></tr>
+    <tr><td><span class="tag tag-g">ACAP</span></td><td>实收≥129</td><td>30元/月(AC20+AP10)</td></tr>
+    <tr><td><span class="tag tag-g">WiFi6</span></td><td>实收≥99</td><td>10元/月</td></tr>
+    <tr><td><span class="tag tag-g">天翼智屏</span></td><td>实收≥129</td><td>20元/月(智屏30+信息优惠10)</td></tr>
+    <tr><td><span class="tag tag-r">二宽+FTTR</span></td><td>严禁单加</td><td>40元/月(1000M+FTTR主+子)</td></tr>
+    <tr><td><span class="tag tag-r">二宽+WiFi6</span></td><td>严禁单加</td><td>30元/月(300M+WiFi6)</td></tr>
+    <tr><td><span class="tag tag-g">门锁</span></td><td>5G套餐</td><td>30元/月(集采设备)</td></tr>
+  </table>
+  <div style="font-size:9px;color:var(--err);margin-top:4px">&#x26D4;&#xFE0F; 二宽严禁单独受理！必须与FTTR或WiFi6一起加装。加装固网价值提升≥10元免调测费</div>
+  </div>
+
+  <div id="t2" class="tab-cnt">
+  <table class="pt">
+    <tr><th>产品</th><th>条件</th><th>价格/内容</th></tr>
+    <tr><td><span class="tag tag-g">视联10元</span></td><td>含宽</td><td>1摄像头+3天AI回看(每套餐限1个)</td></tr>
+    <tr><td><span class="tag tag-g">视联20元</span></td><td>含宽</td><td>农村:双目AI 3天全天;城市:单目AI 7天事件</td></tr>
+    <tr><td><span class="tag tag-o">一户两点</span></td><td>含宽</td><td>30元/月(视联20+一户两点10=2个摄像头)</td></tr>
+    <tr><td><span class="tag tag-g">iTV</span></td><td>5G套餐</td><td>10元/月</td></tr>
+    <tr><td><span class="tag tag-o">尊享iTV</span></td><td>—</td><td>20元/月(含影视优品包:腾讯/爱奇艺/优酷/芒果/B站)</td></tr>
+  </table>
+  </div>
+
+  <div id="t3" class="tab-cnt">
+  <table class="pt">
+    <tr><th>场景</th><th>策略</th><th>产品</th></tr>
+    <tr><td><span class="tag tag-o">不限量[99,129)无FTTR</span></td><td>30元尊享包</td><td>30元(含20G)+FTTR1拖1或智屏</td></tr>
+    <tr><td><span class="tag tag-o">不限量[99,129)有FTTR</span></td><td>20元尊享包</td><td>20元(含10G)+WiFi6或视联</td></tr>
+    <tr><td><span class="tag tag-o">满卡流量</span></td><td>升199+加满副卡</td><td>每副卡赠20G/月×24月</td></tr>
+    <tr><td><span class="tag tag-o">预存送流量</span></td><td>≥99无协议</td><td>预存360→月返30+10G×12月</td></tr>
+    <tr><td><span class="tag tag-r">优惠到期</span></td><td>首推同档迁转</td><td>次推低迁一档|兜底续约提值≥10</td></tr>
+    <tr><td><span class="tag tag-r">携转拆机</span></td><td>首推迁转5G-A</td><td>次推送流量|兜底低迁至99</td></tr>
+  </table>
+  <div style="font-size:9px;color:var(--t3);margin-top:4px">低迁最低至99元档；优惠到期迁169+固网加装+提值≥30→末梢60元</div>
+  </div>
+
+  <div id="t4" class="tab-cnt">
+  <table class="pt">
+    <tr><th>产品</th><th>价格</th><th>内容/条件</th></tr>
+    <tr><td><span class="tag tag-b">5G-A优享包</span></td><td>20元</td><td>10G+2Gbps(非不限量用户)</td></tr>
+    <tr><td><span class="tag tag-b">5G-A尊享包</span></td><td>30元</td><td>15G+3Gbps(非不限量用户)</td></tr>
+    <tr><td><span class="tag tag-g">大流量月包</span></td><td>39/59元</td><td>20G越用越多/40G越用越多</td></tr>
+    <tr><td><span class="tag tag-g">流量月包</span></td><td>10/20/30</td><td>5G/10G/20G可共享</td></tr>
+    <tr><td><span class="tag tag-o">5G购机</span></td><td>实收119-169</td><td>橙分期+FTTR(网龄≥2年直降300)</td></tr>
+  </table>
+  <div style="font-size:9px;color:var(--t3);margin-top:4px">网龄购机红包不得与橙分期叠加；价值提升需大于红包返还额度</div>
+  </div>
 </div>
 
 </div>
@@ -138,6 +201,15 @@ document.addEventListener('paste',function(e){
   var items=e.clipboardData.items;
   for(var i=0;i<items.length;i++){if(items[i].type.indexOf('image')!==-1){handleFile([items[i].getAsFile()]);break;}}
 });
+
+function switchTab(btn,id){
+  var btns=btn.parentElement.querySelectorAll('.tab-btn');
+  for(var i=0;i<btns.length;i++)btns[i].classList.remove('act');
+  btn.classList.add('act');
+  var cnts=btn.parentElement.parentElement.querySelectorAll('.tab-cnt');
+  for(var i=0;i<cnts.length;i++)cnts[i].classList.remove('act');
+  document.getElementById(id).classList.add('act');
+}
 
 function handleFile(files){
   if(!files||!files.length)return;
@@ -170,6 +242,158 @@ function setLoading(title,sub,pct){
   document.getElementById('loadingSub').textContent=sub;
   document.getElementById('progressFill').style.width=pct+'%';
 }
+
+var RULES = `
+【三季度明白纸·完整配餐规则体系】
+
+===== 一、融合升套（根据近3月实收+FTTR状态匹配） =====
+
+目标用户：实收≥129元的存量用户
+判断逻辑：先看实收区间，再看有没有FTTR（有/无FTTR对应不同实收区间）
+
+1. 实收[129,159)且无FTTR 或 实收[129,169)且有FTTR →
+   首推：5G畅享169美好家（80G流量+500分钟+0元1000M宽带+FTTR 1拖1）
+   信息化优惠额度：30元（可选iTV10/视联20/视联一户两点30/影视双屏30/悦享看20/视频锁30，超出另行收费）
+   副卡：10元/月/张，最多4张
+   末梢激励：升169且价值提升≥30元→60元
+
+2. 实收[139,189)且无FTTR 或 实收[139,199)且有FTTR →
+   首推：5G-A 199（100G+1000分钟+0元2000M宽带+FTTR 1拖2(20元主网关+2×10元边缘,36月协议)）
+   信息化优惠额度：40元
+   末梢激励：升5G-A 199且价值提升≥50元→150元
+
+3. 实收[189,229)且无FTTR 或 实收[199,239)且有FTTR →
+   首推：5G-A 239（120G+1000分钟+0元2000M宽带+FTTR 1拖2）
+   信息化优惠额度：40元
+
+4. 实收[229,289)且无FTTR 或 实收[239,299)且有FTTR →
+   首推：5G-A 299（150G+1500分钟+0元2000M宽带+FTTR 1拖2）
+   信息化优惠额度：60元
+
+铁律：169及以上FTTR套餐不得低迁受理！
+
+===== 二、存量加装 =====
+
+【宽带/组网类】
+- FTTR加装：实收≥129 → 20元/月（20元主网关+10元边缘网关+10元组网优惠）
+- ACAP加装：实收≥129 → 30元/月（20元AC+10元AP）
+- WiFi6加装：实收≥99 → 10元/月
+- 二宽+FTTR：40元/月（1000M宽带+1FTTR主网关+1FTTR子网关）→ 严禁单独加装二宽！
+- 二宽+WiFi6：30元/月（300M宽带+1WiFi6）→ 严禁单独加装二宽！
+
+【视联网类】
+- 天翼视联10元：含宽客户 → 1个摄像头+3天AI事件回看（每套餐仅允许1个）
+- 天翼视联20元：含宽客户 → 农村=双目AI版3天全天回看（大型摄像头）；城市=单目AI版7天事件回看（小型摄像头）。加装第二部比照第一部政策
+- 一户两点（智慧派出所）：含宽客户 → 30元/月（20元天翼视联7天事件+10元AI+10元一户两点室外机7天全天）=2个摄像头
+
+【iTV类】
+- iTV：5G套餐用户 → 10元/月（高清ITV全频道回看）
+- 尊享iTV：20元/月（月租+影视优品包，聚合腾讯/爱奇艺/优酷/芒果/B站3万+部内容）
+- 天翼智屏：实收≥129 → 20元/月（30元天翼智屏+10元信息化优惠）
+
+【其他加装】
+- 全自动视频门锁：5G套餐用户 → 30元/月（集采设备，千元智能门锁免费领）
+- 单宽转融：单宽用户 → 首推169元及以上5G随翼选；次推99新畅享融合
+- 调测费：加装固网元素且价值提升≥10元/个，免收调测费
+
+===== 三、不限量升级尊享包（达量降速维系专项） =====
+
+仅适用于达量降速套餐、实收[99,129)用户：
+
+1. 30元流量智家产品尊享包（适用：无FTTR/智屏的客户，或无FTTR/智屏但有WiFi/看家的客户）
+   - 必选：30元（含20GB流量）
+   - 二选一：FTTR 1拖1（30元） 或 天翼智屏（30元）
+
+2. 20元流量智家产品尊享包（适用：有FTTR/智屏但无WiFi和看家的客户，或FTTR/智屏/WiFi/看家全有的客户）
+   - 必选：20元（含10GB流量）
+   - 二选一：全屋WiFi（10元） 或 天翼视联（20元）
+
+===== 四、满卡送流量 =====
+
+适用：向上靠档升级199/239/299/399档5G-A套餐并加满副卡
+政策：每张副卡赠送20G流量/月，优惠期24个月
+注意：流量扩容与5G-A升套打包受理；非目标用户需经客业审核后走绿色通道办理
+
+===== 五、预存送流量（心系万家） =====
+
+适用：实收≥99元，且无协议/近3月无套外收入的目标用户
+政策：预存360元→分12个月返还（每月返30元+10G流量），线上一人一码办理
+非目标用户需由客业审核后添加绿色通道办理
+
+===== 六、5G购机 =====
+
+1. 近3月实收(119,129] → 升畅享169（40G+800分+1000M+FTTR1拖1），橙分期红包30×36=1080元，网龄≥2年享300元权益金
+2. 近3月实收(139,169] → 升5G-A 199（100G+1000分+2000M+FTTR1拖2），橙分期红包50×36=1800元，网龄≥2年享300元权益金
+
+约束：网龄购机红包不得与橙分期叠加；价值提升需大于红包返还额度；参与国补门店可叠加国补
+
+===== 七、心系万家维系策略 =====
+
+1. 升套提值：首推存量向上靠档升5G-A 199/239/299，加满副卡+满卡流量
+2. 终端焕新：199元以上千兆网端不匹配→预存100元换千兆网关；有标清机顶盒→20元尊享包；无机顶盒→10元iTV
+3. 预存送流量：≥99无协议/无套外→预存360元(月返30+10G)
+
+===== 八、优惠到期维系 =====
+
+1. 首推：迁转同档新产品（恢复标准资费，迁转5G-A系列），一类40分+二类60分+高迁60元
+2. 次推：低迁一档标准套餐（不得低于近3月实收），一类10分+二类60分
+3. 兜底：优惠降档续约（实收需提值≥10元），一类10分+二类60分
+
+特殊激励：到期迁转169及以上+固网加装+价值提升≥30元→末梢60元
+低迁最低至99元档！
+
+===== 九、携转拆机维系 =====
+
+1. 首推：迁转同档/升档5G-A随翼选，二类60分+维系平迁30元
+2. 次推：赠送10G/20G流量
+3. 兜底：低迁套餐（需附拆挽单/投诉单截图审核），无酬金
+4. 不限量用户：30元/20元流量智家尊享包维系，一类30分+二类60分
+
+低迁最低至99元档！升199及以上5G-A+拆挽单→末梢30元
+
+===== 十、心系万企（政企专线维系） =====
+
+根据专线标签（低速率/裸专线/低活跃/高单价）组合选择策略：
+- 首推：升套+业务加装（FTTR-B/视联网/安全大脑）
+- 次推：升套/预存/网龄提速
+- 兜底：仅续约
+
+续约激励：2年及以上，799元以下×0.15倍，799元及以上×0.25倍（500元封顶）；加装战新业务增配0.2倍
+
+===== 十一、信息化可选产品清单 =====
+
+适用于升套后的信息化优惠额度：
+- iTV：10元/月
+- 天翼视联：20元/月
+- 天翼视联一户两点：30元/月
+- 影视双屏会员：30元/月
+- 悦享看：20元/月
+- 视频锁：30元/月
+超出优惠额度部分另行收费
+`;
+
+var FMT = `
+【关键信息】
+用自己的话归纳客户当前核心信息：套餐档次、近3月实收、流量使用情况、有无FTTR/智屏/WiFi/看家/宽带/副卡等。绝不照搬画像标签原文！
+
+【背后商机】
+逐条分析客户痛点和需求，每条必须用"从①…②…"的推导逻辑：
+- 实收接近升套区间→升套提值机会
+- 无FTTR/网速慢→组网加装机会
+- 流量溢出/不够用→扩容机会
+- 有沉默副卡→满卡激活机会
+- 无看家/门锁→安防加装机会
+- 无iTV/智屏→信息化机会
+- 优惠到期/携转风险→维系机会
+- 达量降速→尊享包维系机会
+
+【推荐产品】
+首推：产品名+完整构成+切入原因（必须写清实收条件是否满足）
+次推：附加产品+原因
+兜底：保底方案+原因
+
+推荐产品必须严格遵守实收金额条件！
+`;
 
 async function startGenerate(){
   if(!imageBase64){toast('请先上传客户画像截图');return;}
@@ -213,8 +437,8 @@ async function startGenerate(){
     return;
   }
 
-  // Step 2: DeepSeek文本模型生成配餐
-  var prompt='你是中国电信黄山分公司客户经营中心的配餐专家。\n\n以下是通过OCR从客户画像截图中识别出的文字（可能有不准确的地方，请根据上下文推断修正）：\n\n---\n'+ocrText+'\n---\n\n请根据以上信息，生成标准配餐方案。\n\n严格要求：\n1. 输出格式必须为三段式：\n【关键信息】\n总结客户当前套餐、消费、号卡、宽带、流量、FTTR等核心信息（不要照搬画像标签，要用自己的话归纳）\n\n【背后商机】\n逐条分析客户痛点和需求，每条以"从①…②…切入"的格式\n\n【推荐产品】\n首推：产品名+构成+切入原因（必须是实收金额符合条件的产品）\n次推：附加产品+原因\n兜底：保底方案+原因\n\n2. 产品政策对照表（必须严格遵守条件）：\n- 169美好家：实收[99,159)元 → 169+80G+1000M+FTTR 1拖1\n- 199 5G-A：实收[139,399)元 → 199+100G+2000M+FTTR 1拖2\n- 239 5G-A：实收[199,399)元 → 239+120G+2000M+FTTR 1拖2\n- 20元FTTR加装：实收≥129元 → 主网关20+边缘10+组网10\n- 20元智屏加装：实收≥129元 → 智屏30+信息优惠10\n- 10元视联加装：含宽 → 视联3天AI监控10元\n- 满卡流量：≥199融合 → 每副卡+20G\n- 预存360：不限 → 360元分12月返(月30元)+120G(月10G)\n\n3. 核心规则：\n- 绝对不能照搬画像标签原文，必须做独立分析归纳\n- 推荐产品必须符合实收金额条件\n- 存量用户不允许单独加装二宽\n- 有沉默号卡要推荐满卡流量激活\n- 无FTTR要推荐FTTR加装\n- 流量溢出要推荐升档扩流量\n- 宽带低速率要推荐提速\n- 每条商机要写清楚①②推导逻辑\n\n请直接输出配餐方案，不要输出其他解释。';
+  // Step 2: DeepSeek生成配餐
+  var prompt='你是中国电信黄山分公司客户经营中心的配餐专家，严格按照三季度明白纸政策为客户匹配产品方案。\n\n以下是通过OCR从客户画像截图中识别出的文字（可能有不准确，请根据上下文推断修正）：\n\n---\n'+ocrText+'\n---\n\n'+RULES+'\n\n'+FMT+'\n\n核心规则：\n1. 绝对不能照搬画像标签原文，必须做独立分析归纳\n2. 推荐产品必须严格匹配实收条件，有FTTR/无FTTR实收区间不同\n3. 存量用户严禁单独加装二宽\n4. 有沉默副卡→推荐满卡流量激活\n5. 无FTTR→推荐FTTR加装\n6. 流量溢出→推荐升档扩容\n7. 达量降速[99,129)→推荐尊享包维系\n8. 优惠到期→首推同档迁转\n9. 每条商机要写清①②推导逻辑\n10. 推荐产品要写完整构成和价格\n\n请直接输出配餐方案，不要输出其他解释。';
 
   try{
     setLoading('AI正在生成配餐…','约需10-20秒，请稍候',70);
@@ -229,7 +453,7 @@ async function startGenerate(){
         model:'deepseek-chat',
         messages:[{role:'user',content:prompt}],
         temperature:0.3,
-        max_tokens:1500
+        max_tokens:2000
       })
     });
 
