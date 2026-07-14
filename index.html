@@ -27,14 +27,12 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 .pv-btn:active{transform:scale(.97)}
 .pv-btn.red{color:var(--err);border-color:#F5D5D3}
 .tip-box{background:linear-gradient(135deg,#FFF8ED,#FFF2DB);border-radius:10px;padding:12px 14px;margin-bottom:10px;border-left:4px solid var(--warn);font-size:12px;color:var(--t2);line-height:1.6}
-.tip-box strong{color:#C06A00}
 .res-box{background:var(--pl);border:1.5px solid #B8D4F0;border-radius:12px;padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;word-break:break-all;max-height:60vh;overflow-y:auto;color:var(--t1);margin-bottom:8px}
 .copy-hint{text-align:center;font-size:11px;color:var(--t3);margin-top:6px}
 .btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;font-family:inherit;letter-spacing:.5px}
 .btn:active{transform:scale(.97)}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn1{background:linear-gradient(135deg,#0B5DAA,#074075);color:#fff;box-shadow:0 3px 10px rgba(7,64,117,.2)}
-.btn2{background:#fff;color:var(--p);border:1.5px solid var(--p);font-size:14px;padding:11px}
 .bb{position:fixed;bottom:0;left:0;right:0;padding:10px 14px;padding-bottom:calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);backdrop-filter:blur(12px);border-top:1px solid var(--bd);z-index:100}
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);padding:10px 22px;background:rgba(28,35,51,.82);color:#fff;border-radius:10px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:88vw;text-align:center;font-weight:500}
 .toast.sh{opacity:1}
@@ -45,12 +43,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 .tag-b{background:#D9EAFC;color:var(--p)}
 .tag-g{background:#D5F4E6;color:var(--ok)}
 .tag-o{background:#FDEBD0;color:var(--warn)}
-.settings-area{margin-top:6px}
-.settings-toggle{font-size:11px;color:var(--t3);cursor:pointer;text-decoration:underline}
-.api-input{display:none;margin-top:8px}
-.api-input.sh{display:flex;gap:6px;align-items:center}
-.api-input input{flex:1;padding:8px;border:1.5px solid var(--bd);border-radius:8px;font-size:12px;font-family:inherit}
-.api-input button{padding:8px 12px;border:1.5px solid var(--p);border-radius:8px;background:var(--pl);color:var(--p);font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap}
 .loading-box{background:var(--pl);border:1.5px solid #B8D4F0;border-radius:12px;padding:20px;text-align:center;margin-top:10px}
 .loading-spin{display:inline-block;width:32px;height:32px;border:3px solid #B8D4F0;border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -68,7 +60,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 <div class="ctn">
 
 <div class="tip-box">
-  <strong>&#x1F4A1;</strong> 拍照或上传客户画像截图，AI自动识别并生成配餐方案。每次约3厘钱（1000次才3元）。
+  <strong>&#x1F4A1;</strong> 拍照或上传客户画像截图，AI自动识别并生成配餐方案，一键复制发群。
 </div>
 
 <div class="card">
@@ -121,17 +113,6 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
   </table>
 </div>
 
-<div class="card" style="background:#F8F9FB">
-  <div class="settings-area">
-    <span class="settings-toggle" id="settingsToggle" onclick="toggleSettings()">&#x2699;&#xFE0F; API设置</span>
-    <span id="apiKeyStatus" style="font-size:11px;color:var(--t3);margin-left:6px"></span>
-    <div class="api-input" id="apiInputArea">
-      <input type="password" id="apiKeyInput" placeholder="输入DeepSeek API Key">
-      <button onclick="saveApiKey()">保存</button>
-    </div>
-  </div>
-</div>
-
 </div>
 
 <div class="bb">
@@ -142,33 +123,20 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",
 
 <script>
 var imageBase64=null;
+var _dk='sk-57d7610be4a0487c8502338edd05b9da';
 
-// API Key管理
-function getApiKey(){return localStorage.getItem('ds_api_key')||''}
-function saveApiKey(){
-  var k=document.getElementById('apiKeyInput').value.trim();
-  if(!k){toast('请输入API Key');return}
-  localStorage.setItem('ds_api_key',k);
-  document.getElementById('apiInputArea').classList.remove('sh');
-  updateKeyStatus();
-  toast('API Key已保存');
-}
-function updateKeyStatus(){
-  var k=getApiKey();
-  var el=document.getElementById('apiKeyStatus');
-  el.textContent=k?'(已配置)':'(未配置)';
-  el.style.color=k?'var(--ok)':'var(--err)';
-}
-function toggleSettings(){
-  var area=document.getElementById('apiInputArea');
-  area.classList.toggle('sh');
-  if(area.classList.contains('sh')){
-    var k=getApiKey();
-    if(k)document.getElementById('apiKeyInput').value=k;
-  }
+function checkLimit(){
+  var k='_pc_cnt',d=new Date().toISOString().slice(0,10);
+  var v=localStorage.getItem(k);
+  if(!v){localStorage.setItem(k,d+'_1');return true}
+  var p=v.split('_');
+  if(p[0]!==d){localStorage.setItem(k,d+'_1');return true}
+  var c=parseInt(p[1])||0;
+  if(c>=50){return false}
+  localStorage.setItem(k,d+'_'+(c+1));
+  return true;
 }
 
-// 图片上传
 var uz=document.getElementById('uploadZone');
 uz.addEventListener('dragover',function(e){e.preventDefault();uz.classList.add('dg')});
 uz.addEventListener('dragleave',function(){uz.classList.remove('dg')});
@@ -203,66 +171,24 @@ function clearImage(){
   document.getElementById('loadingCard').style.display='none';
 }
 
-// 生成配餐
 async function generateFromImage(){
   if(!imageBase64){toast('请先上传客户画像截图');return;}
-  var apiKey=getApiKey();
-  if(!apiKey){
-    toast('请先配置API Key');
-    document.getElementById('apiInputArea').classList.add('sh');
-    return;
-  }
+  if(!checkLimit()){toast('今日使用次数已达上限(50次)');return;}
 
   var btn=document.getElementById('mainBtn');
   btn.disabled=true;
   btn.textContent='⏳ 生成中…';
   document.getElementById('loadingCard').style.display='block';
   document.getElementById('resultBox').style.display='none';
-  document.getElementById('loadingSub').textContent='约需10-20秒，请稍候';
 
-  var prompt=`你是中国电信黄山分公司客户经营中心的配餐专家。请根据图片中的客户画像信息，生成标准配餐方案。
-
-严格要求：
-1. 输出格式必须为三段式：
-【关键信息】
-总结客户当前套餐、消费、号卡、宽带、流量、FTTR等核心信息（不要照搬画像标签，要用自己的话归纳）
-
-【背后商机】
-逐条分析客户痛点和需求，每条以"从①…②…切入"的格式
-
-【推荐产品】
-首推：产品名+构成+切入原因（必须是实收金额符合条件的产品）
-次推：附加产品+原因
-兜底：保底方案+原因
-
-2. 产品政策对照表（必须严格遵守条件）：
-- 169美好家：实收[99,159)元 → 169+80G+1000M+FTTR 1拖1
-- 199 5G-A：实收[139,399)元 → 199+100G+2000M+FTTR 1拖2
-- 239 5G-A：实收[199,399)元 → 239+120G+2000M+FTTR 1拖2
-- 20元FTTR加装：实收≥129元 → 主网关20+边缘10+组网10
-- 20元智屏加装：实收≥129元 → 智屏30+信息优惠10
-- 10元视联加装：含宽 → 视联3天AI监控10元
-- 满卡流量：≥199融合 → 每副卡+20G
-- 预存360：不限 → 360元分12月返(月30元)+120G(月10G)
-
-3. 核心规则：
-- 绝对不能照搬画像标签原文，必须做独立分析归纳
-- 推荐产品必须符合实收金额条件
-- 存量用户不允许单独加装二宽
-- 有沉默号卡要推荐满卡流量激活
-- 无FTTR要推荐FTTR加装
-- 流量溢出要推荐升档扩流量
-- 宽带低速率要推荐提速
-- 每条商机要写清楚①②推导逻辑
-
-请直接输出配餐方案，不要输出其他解释。`;
+  var prompt='你是中国电信黄山分公司客户经营中心的配餐专家。请根据图片中的客户画像信息，生成标准配餐方案。\n\n严格要求：\n1. 输出格式必须为三段式：\n【关键信息】\n总结客户当前套餐、消费、号卡、宽带、流量、FTTR等核心信息（不要照搬画像标签，要用自己的话归纳）\n\n【背后商机】\n逐条分析客户痛点和需求，每条以"从①…②…切入"的格式\n\n【推荐产品】\n首推：产品名+构成+切入原因（必须是实收金额符合条件的产品）\n次推：附加产品+原因\n兜底：保底方案+原因\n\n2. 产品政策对照表（必须严格遵守条件）：\n- 169美好家：实收[99,159)元 → 169+80G+1000M+FTTR 1拖1\n- 199 5G-A：实收[139,399)元 → 199+100G+2000M+FTTR 1拖2\n- 239 5G-A：实收[199,399)元 → 239+120G+2000M+FTTR 1拖2\n- 20元FTTR加装：实收≥129元 → 主网关20+边缘10+组网10\n- 20元智屏加装：实收≥129元 → 智屏30+信息优惠10\n- 10元视联加装：含宽 → 视联3天AI监控10元\n- 满卡流量：≥199融合 → 每副卡+20G\n- 预存360：不限 → 360元分12月返(月30元)+120G(月10G)\n\n3. 核心规则：\n- 绝对不能照搬画像标签原文，必须做独立分析归纳\n- 推荐产品必须符合实收金额条件\n- 存量用户不允许单独加装二宽\n- 有沉默号卡要推荐满卡流量激活\n- 无FTTR要推荐FTTR加装\n- 流量溢出要推荐升档扩流量\n- 宽带低速率要推荐提速\n- 每条商机要写清楚①②推导逻辑\n\n请直接输出配餐方案，不要输出其他解释。';
 
   try{
     var resp=await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'Authorization':'Bearer '+apiKey
+        'Authorization':'Bearer '+_dk
       },
       body:JSON.stringify({
         model:'deepseek-vl2',
@@ -280,7 +206,7 @@ async function generateFromImage(){
 
     if(!resp.ok){
       var errText=await resp.text();
-      throw new Error('API错误: '+resp.status+' '+errText.substring(0,200));
+      throw new Error('服务异常('+resp.status+')，请稍后重试');
     }
 
     var data=await resp.json();
@@ -291,7 +217,6 @@ async function generateFromImage(){
     document.getElementById('loadingCard').style.display='none';
     document.getElementById('resultBox').scrollIntoView({behavior:'smooth',block:'start'});
 
-    // 自动复制
     copyText(text);
     toast('配餐已生成并复制！');
   }catch(err){
@@ -300,7 +225,7 @@ async function generateFromImage(){
     console.error(err);
   }finally{
     btn.disabled=false;
-    btn.textContent='🤖 生成配餐';
+    btn.textContent='\uD83E\uDD16 生成配餐';
   }
 }
 
@@ -319,9 +244,6 @@ function fbCopy(text){
   document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('已复制！粘贴发群')}catch(e){toast('复制失败，请手动复制')}document.body.removeChild(ta);
 }
 function toast(m,d){var t=document.getElementById('toast');t.textContent=m;t.classList.add('sh');setTimeout(function(){t.classList.remove('sh')},d||2500)}
-
-// 初始化
-updateKeyStatus();
 </script>
 </body>
 </html>
