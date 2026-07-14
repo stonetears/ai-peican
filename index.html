@@ -124,7 +124,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 </div>
 
 <div class="card" id="infoCard">
-  <div class="ct"><span class="ico">&#x270D;&#xFE0F;</span> 确认/补充关键信息</div>
+  <div class="ct"><span class="ico">&#x270D;&#xFE0F;</span> 补充信息（选填）</div>
   <div class="fr">
     <div class="fg">
       <label>工单号</label>
@@ -137,11 +137,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
   <div class="fr">
     <div class="fg">
-      <label>当前套餐<span class="rq">*</span></label>
+      <label>当前套餐</label>
       <input type="text" id="plan" placeholder="如 199元5G融合套餐">
     </div>
     <div class="fg">
-      <label>月均消费<span class="rq">*</span></label>
+      <label>月均消费</label>
       <input type="number" id="avgSpend" placeholder="如 159.8">
     </div>
   </div>
@@ -191,7 +191,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 </div>
 
 <div class="bb">
-  <button class="btn btn1" id="mainBtn" onclick="generate()">&#x1F916; 生成配餐请求</button>
+  <button class="btn btn1" id="mainBtn" onclick="generate()">&#x1F4CB; 生成配餐请求</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -219,7 +219,8 @@ function handleFile(files){
     uz.style.display='none';
     hasImage=true;
     updateSteps(2);
-    toast('图片已上传');
+    toast('图片已上传，正在生成配餐请求…');
+    setTimeout(function(){generate()},600);
   };
   r.readAsDataURL(f);
 }
@@ -243,7 +244,6 @@ function updateSteps(cur){
 function generate(){
   var plan=document.getElementById('plan').value.trim();
   var avg=document.getElementById('avgSpend').value.trim();
-  if(!plan||!avg){toast('请填写当前套餐和月均消费');return;}
 
   var oid=document.getElementById('orderId').value.trim();
   var cp=document.getElementById('cpName').value.trim();
@@ -254,18 +254,19 @@ function generate(){
   var lines=[];
   lines.push('【AI配餐请求】');
   lines.push('');
+  if(hasImage)lines.push('（已上传客户画像截图，请先识别图片中的客户信息）');
   if(oid)lines.push('工单号：'+oid);
   if(cp)lines.push('结对CP：'+cp);
-  lines.push('当前套餐：'+plan);
-  lines.push('月均消费：'+avg+'元');
+  if(plan)lines.push('当前套餐：'+plan);
+  if(avg)lines.push('月均消费：'+avg+'元');
   if(data){
     var dp=data.split('/');
     lines.push('流量：套内'+dp[0].trim()+(dp[1]?'，月均用'+dp[1].trim():''));
   }
   if(broad)lines.push('宽带速率：'+broad);
+  if(extra){lines.push('');lines.push('── 画像补充 ──');lines.push(extra);}
   lines.push('');
-  if(extra){lines.push('── 画像补充 ──');lines.push(extra);lines.push('');}
-  lines.push('请根据以上客户画像信息，进行AI配餐，输出：');
+  lines.push('请根据以上信息进行AI配餐，输出：');
   lines.push('1) 画像分析（不要照搬画像，要有自己的分析判断）');
   lines.push('2) 痛点挖掘（从套餐匹配度、流量、网络质量、产品空缺等维度）');
   lines.push('3) 首推方案（产品名称+价格+条件匹配+推荐理由）');
